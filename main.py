@@ -1,29 +1,48 @@
 import tkinter as tk
 from tkinter import ttk
 from pynput import mouse
-import os
+# import os
+import pickle
+# import csv
+#from threading import Thread
+import time
 
+#to install requirements use:
+# pip install -r requirements.txt
+
+move_x = []   #Liste der Mauspositionen
+move_y = []
+click_x = []  #Lister der Klickpositionen
+click_y = []
+timepoint = [] #Liste der Zeitpunkte 
+starttime = time.time()
 
 # The callback to call when mouse move events occur
 def on_move(x, y):
+
     print('Maus bewegt zu {0}'.format((x, y)))
+    # Daten in Liste abspeichern
+    move_x.append(x)
+    move_y.append(y)
+    timepoint.append(starttime - time.time())
 
-    # store Positiondata, später über with statement und Prüfung ob bereits vorhanden
-    #f.writelines("{0}".format((x, y)))
-    f.write("{0}".format((x, y)))
-
+#sobald irgendein mouse klick occurs (left, right, ..) wird diese position in Datei geschrieben
+#-----> Ausblick: nur Left clicks relevant?
 def on_click(x, y, button, pressed):
-    print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+    #print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+    print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
 
-    if not pressed:
-        return False
-
+    #nur left klicks, keine release sind interessant
+    if str(button) == 'Button.left' and pressed:
+        click_x.append(x)
+        click_y.append(y)
+        print('Left!')
 
 def StartPositionTrack():
     # Beginn des Trackings
     listener.start()
-
-    # File zum Daten Spoeichern erzeugen und Prüfung ob File vbereitsw vorhanden
+    # global tracking
+    # File zum Daten Speichern erzeugen und Prüfung ob File bereitsw vorhanden
 
     # Timer starten
 
@@ -43,8 +62,18 @@ def ContinuePositionTrack():
 def StopPositionTrack():
     # mouse Tracking stoppen
     listener.stop()
+  
+    with open("demo.pickle", "wb") as file:
+        # for pos in move_x, move_y, click_x, click_y:
+        #     file.writelines(str(pos) + '\n')
+        pickle.dump(move_x, file, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(move_y, file, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(click_x, file, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(click_y, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-    # close file
+    with open("demo.txt", "w") as file2:
+        for pos in move_x, move_y, click_x, click_y:
+            file2.writelines(str(pos) + '\n')
 
 
 app = tk.Tk()
@@ -57,21 +86,24 @@ label2 = tk.Label(wholePage, text="Check 1:").grid(row=2, column=0, rowspan=2, c
 
 # start only once callable, for new start, new thread has to be started
 button_Start = ttk.Button(wholePage, text="Starte Anwendung", command=lambda: StartPositionTrack()).grid(row=4, column=0)  # hier später timer starten
-button_Stopp = ttk.Button(wholePage, text="Stopp", command=lambda: listener.stop()).grid(row=4, column=1)
+button_Stopp = ttk.Button(wholePage, text="Stopp", command=lambda: StopPositionTrack()).grid(row=4, column=1)
+
 
 # controller = mouse.Controller()
 listener = mouse.Listener(on_move=on_move, on_click=on_click)
-# listener.start()
-# mouse = mouse.Listener(on_move=on_move)
-
-if os.path.exists("demo.txt"):
-    os.remove("demo.txt")
-    f = open("demo.txt", "w")
-else:
-    f = open("demo.txt", "x")
 
 
-# shortcut to stop imediately
+# shortcut to stop imediately 
 
 
 app.mainloop()
+
+
+
+    # if os.path.exists("demo.txt"):
+    #     #kreiere eine neue Datei, mit anderer Endung
+    #     os.remove("demo.txt")
+    #     file = open("demo.txt", "w")
+    # else:
+    #     file = open("demo.txt", "x")
+        
