@@ -1,39 +1,35 @@
-import pickle
- 
-class MyClass():
-    def __init__(self, param):
-        self.param = param
- 
-    def load_object(filename):
-        try:
-            with open(filename, "rb") as f:
-                return pickle.load(f)
-        except Exception as ex:
-            print("Error during unpickling object (Possibly unsupported):", ex)
- 
-obj = MyClass.load_object("demo.pickle")
- 
-# print(obj)
-# print(isinstance(obj, MyClass))
+import numpy as np
+import seaborn
+import csv
+import pandas as pd
+import matplotlib
+import matplotlib.pyplot as plt
+
+# df = pd.read_csv ('heatmap_move.csv')
+# # df = pd.read_csv('move.csv')
+# print(df)
+
+heat_move = []
+
+with open('heatmap_move.csv') as csvdatei:
+    reader = csv.reader(csvdatei, quoting=csv.QUOTE_NONNUMERIC, delimiter=',')
+    for row in reader:
+        heat_move.append(row)
+
+print(type(heat_move(1,1)))
+print(type(heat_move))
+print(np.shape(heat_move))
+    
+    
+# for row in csv_reader_object:
+    #print(row)
+    
+
+# seaborn.heatmap(heat_move)
+
+# plt.imshow(heat_move, cmap='hot', interpolation='nearest')
+# plt.show()
 
 
-with open("demo.txt","r") as datei:
-    # für jede Zeile in der Datei...
-    for name in datei:
-        # erster Eintrag (Index 0) aus der Liste repräsentiert den Namen
-        move_x = name[0,:]
-        # zweiter Eintrag (Index 1) aus der Liste repräsentiert das Alter
-        move_y = name[1,:]
-        # dritter Eintrag (Index 2) aus der Liste repräsentiert das Geschlecht
-        click_x = name[2,:]
-
-        click_y = name[3,:]
-
-
-print(type(move_x))
-        # Ausgabe der Werte in einem Satz. 
-# print('x-Pos:', move_x[0])
-# print('y-Pos:', move_y[0])
-# print('x-Klick:', click_x[0])
-# print('y-Klick:', click_y[0])
-# print(move_x)
+#DURCHARBEITEN
+#https://matplotlib.org/stable/gallery/images_contours_and_fields/image_annotated_heatmap.html
