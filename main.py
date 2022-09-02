@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from pynput import mouse
 # import os
-import pickle
 # import csv
 #from threading import Thread
 import time
@@ -14,8 +13,9 @@ move_x = []   #Liste der Mauspositionen
 move_y = []
 click_x = []  #Lister der Klickpositionen
 click_y = []
-timepoint = [] #Liste der Zeitpunkte 
-starttime = time.time()
+time_move = [] #Liste der Zeitpunkte der Bewegungen
+time_click = [] #Liste der Zeitpunkte der Klicks
+
 
 # The callback to call when mouse move events occur
 def on_move(x, y):
@@ -24,7 +24,7 @@ def on_move(x, y):
     # Daten in Liste abspeichern
     move_x.append(x)
     move_y.append(y)
-    timepoint.append(starttime - time.time())
+    time_move.append(time.time() - starttime)
 
 #sobald irgendein mouse klick occurs (left, right, ..) wird diese position in Datei geschrieben
 #-----> Ausblick: nur Left clicks relevant?
@@ -36,15 +36,15 @@ def on_click(x, y, button, pressed):
     if str(button) == 'Button.left' and pressed:
         click_x.append(x)
         click_y.append(y)
-        print('Left!')
+        time_click.append(time.time()- starttime)
 
 def StartPositionTrack():
     # Beginn des Trackings
     listener.start()
-    # global tracking
-    # File zum Daten Speichern erzeugen und Prüfung ob File bereitsw vorhanden
 
     # Timer starten
+    global starttime
+    starttime = time.time()
 
     # nächste seite anzeigen
 
@@ -62,17 +62,15 @@ def ContinuePositionTrack():
 def StopPositionTrack():
     # mouse Tracking stoppen
     listener.stop()
-  
-    with open("demo.pickle", "wb") as file:
-        # for pos in move_x, move_y, click_x, click_y:
-        #     file.writelines(str(pos) + '\n')
-        pickle.dump(move_x, file, protocol=pickle.HIGHEST_PROTOCOL)
-        pickle.dump(move_y, file, protocol=pickle.HIGHEST_PROTOCOL)
-        pickle.dump(click_x, file, protocol=pickle.HIGHEST_PROTOCOL)
-        pickle.dump(click_y, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-    with open("demo.txt", "w") as file2:
-        for pos in move_x, move_y, click_x, click_y:
+
+    #Bewegungsdaten und Klicks mit Zeitpunkten in File speichern
+    with open("move.csv", "w") as file1:
+        for pos in move_x, move_y, time_move:
+            file1.writelines(str(pos) + '\n')
+    
+    with open("click.csv", "w") as file2:
+        for pos in click_x, click_y, time_click:
             file2.writelines(str(pos) + '\n')
 
 
