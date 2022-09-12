@@ -4,23 +4,27 @@ from pynput import mouse
 # import os
 # import csv
 #from threading import Thread
-import time
+import time     
+import numpy as np
+import seaborn 
+import matplotlib.pyplot as plt
+import pandas as pd
+
 
 #to install requirements use:
 # pip install -r requirements.txt
 
-move_x = []   #Liste der Mauspositionen
-move_y = []
-click_x = []  #Lister der Klickpositionen
-click_y = []
-time_move = [] #Liste der Zeitpunkte der Bewegungen
-time_click = [] #Liste der Zeitpunkte der Klicks
-
+move_x   = []   #Liste der Mauspositionen
+move_y   = []
+click_x  = []  #Lister der Klickpositionen
+click_y  = []
+time_move   = [] #Liste der Zeitpunkte der Bewegungen
+time_click  = [] #Liste der Zeitpunkte der Klicks
 
 # The callback to call when mouse move events occur
 def on_move(x, y):
 
-    print('Maus bewegt zu {0}'.format((x, y)))
+    #print('Maus bewegt zu {0}'.format((x, y)))
     # Daten in Liste abspeichern
     move_x.append(x)
     move_y.append(y)
@@ -47,35 +51,100 @@ def StartPositionTrack():
     starttime = time.time()
 
     # nächste seite anzeigen
-
-
 def PausePositionTrack():
     # close file when tracking is paused
     pass
-
 
 def ContinuePositionTrack():
     # file reopen open('a')''
     pass
 
-
 def StopPositionTrack():
     # mouse Tracking stoppen
     listener.stop()
 
+    Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
+    Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
 
-    #Bewegungsdaten und Klicks mit Zeitpunkten in File speichern
-    with open("move.csv", "w") as file1:
-        for pos in move_x, move_y, time_move:
-            file1.writelines(str(pos) + '\n')
+    heatmove = CalculateHeatmap(move_x, move_y, name="Heatmap Movement")
+    # heatclick = CalculateHeatmap(click_x, click_y, name="Heatmap Clicks")
+
+    #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
+    pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
+    # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
+
+    # move_velocity = CalculateVelocity(move_x, move_y, time_move)
+    #click_velocity = CalculateVelocity(click_x, click_y, time_click)
+    # CalculateVelocity(move_x, move_y, time_move)
+    CalculateVelocity(click_x, click_y, time_click)
+
     
-    with open("click.csv", "w") as file2:
-        for pos in click_x, click_y, time_click:
-            file2.writelines(str(pos) + '\n')
+
+def CalculateVelocity(data_x, data_y, time_event): #acceleration = veränderung von v
+    velo_x = np.empty(shape=(np.shape(data_x)))
+    velo_y = np.empty(shape=(np.shape(data_y)))
+
+    for i in range(len(data_x)):
+        if i == 0:
+            velo_x[i] = 0
+            velo_y[i] = 0
+            
+        else:
+            velo_x[i] = (abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1])
+            velo_y[i] = (abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1])
+
+
+    print(velo_x)
+    print(velo_y)
+    return velo_x, velo_y
+
+
+def CalculateAcceleration():
+    pass
+
+def CalculateHeatmap(x_Data, y_Data, name):
+
+    heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
+    print(type(heatmap))
+    print(np.shape(heatmap))
+
+    for i in range(len(x_Data)):
+        heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
+
+    # print(np.max(np.max(heatmap)))
+    # plt.imshow(heatmap) #, cmap='gray')
+    # plt.title(name)
+    # plt.show()
+
+    return heatmap 
+
+def Save2D_Data_with_Time(data_x, data_y, time, filename):
+    #function to write data in csv file with timepoints
+    #data has 3 inputs, x, y and time 
+    #daten und Klicks mit Zeitpunkten in File speichern
+
+        # if os.path.exists("demo.txt"):
+    #     #kreiere eine neue Datei, mit anderer Endung
+    #     os.remove("demo.txt")
+    #     file = open("demo.txt", "w")
+    # else:
+    #     file = open("demo.txt", "x")
+
+    with open(filename, "w") as file:
+        for pos in data_x, data_y, time:
+            file.writelines(str(pos) + '\n')
+
+def Save_Heatmap(data, filename):
+    with open(filename, "w") as file:
+        for x, y in data:
+            file.writelines(str(x) + '\n')
+            file.writelines(str(y) + '\n')
+
 
 
 app = tk.Tk()
 app.title("Mousetrack")
+
 
 wholePage = tk.Frame(app).grid()
 
@@ -83,7 +152,7 @@ label1 = tk.Label(wholePage, text="Input 1:").grid(row=0, column=0, rowspan=2, c
 label2 = tk.Label(wholePage, text="Check 1:").grid(row=2, column=0, rowspan=2, columnspan=4)
 
 # start only once callable, for new start, new thread has to be started
-button_Start = ttk.Button(wholePage, text="Starte Anwendung", command=lambda: StartPositionTrack()).grid(row=4, column=0)  # hier später timer starten
+button_Start = ttk.Button(wholePage, text="Starte Anwendung", command=lambda: StartPositionTrack()).grid(row=4, column=0)
 button_Stopp = ttk.Button(wholePage, text="Stopp", command=lambda: StopPositionTrack()).grid(row=4, column=1)
 
 
@@ -97,11 +166,15 @@ listener = mouse.Listener(on_move=on_move, on_click=on_click)
 app.mainloop()
 
 
+#Aublick
+# Version 1.0.5
+#     die zuvor hinzugefügten Features werden in ein GUI eingefügt
+#         1. Seite 1 zur Informationsabfrage
+#         2. Seite 2 zum Vornehmen von Einstellungen und Starten der Anwendung
+#         3. Live Seite während des Trackings mit Timer und Stop
+#         4. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
 
-    # if os.path.exists("demo.txt"):
-    #     #kreiere eine neue Datei, mit anderer Endung
-    #     os.remove("demo.txt")
-    #     file = open("demo.txt", "w")
-    # else:
-    #     file = open("demo.txt", "x")
+       
+
+
         
