@@ -84,8 +84,6 @@ def CalculateVelocity(data_x, data_y, time_event): #acceleration = veränderung 
     velo_x = np.empty(shape=(np.shape(data_x)))
     velo_y = np.empty(shape=(np.shape(data_y)))
 
-
-    
     for i in range(len(data_x)):
         if i == 0:
             velo_x[i] = 0

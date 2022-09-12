@@ -27,3 +27,6 @@ Version 1.0.4
         1. Heatmap der movement data
         2. Heatmap der click data
 
+Version 1.0.5
+    Velocity is calculated
+    1. in direction x and y
