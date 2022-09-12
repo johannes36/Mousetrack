@@ -21,7 +21,6 @@ click_y  = []
 time_move   = [] #Liste der Zeitpunkte der Bewegungen
 time_click  = [] #Liste der Zeitpunkte der Klicks
 
-print('START')
 # The callback to call when mouse move events occur
 def on_move(x, y):
 
@@ -74,10 +73,33 @@ def StopPositionTrack():
     pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
     # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
 
-    CalculateVelocity()
+    # move_velocity = CalculateVelocity(move_x, move_y, time_move)
+    #click_velocity = CalculateVelocity(click_x, click_y, time_click)
+    # CalculateVelocity(move_x, move_y, time_move)
+    CalculateVelocity(click_x, click_y, time_click)
 
-def CalculateVelocity():
-    print('Velocity calculated')
+    
+
+def CalculateVelocity(data_x, data_y, time_event): #acceleration = veränderung von v
+    velo_x = np.empty(shape=(np.shape(data_x)))
+    velo_y = np.empty(shape=(np.shape(data_y)))
+
+
+    
+    for i in range(len(data_x)):
+        if i == 0:
+            velo_x[i] = 0
+            velo_y[i] = 0
+            
+        else:
+            velo_x[i] = (abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1])
+            velo_y[i] = (abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1])
+
+
+    print(velo_x)
+    print(velo_y)
+    return velo_x, velo_y
+
 
 def CalculateAcceleration():
     pass
@@ -91,10 +113,10 @@ def CalculateHeatmap(x_Data, y_Data, name):
     for i in range(len(x_Data)):
         heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
 
-    print(np.max(np.max(heatmap)))
-    plt.imshow(heatmap) #, cmap='gray')
-    plt.title(name)
-    plt.show()
+    # print(np.max(np.max(heatmap)))
+    # plt.imshow(heatmap) #, cmap='gray')
+    # plt.title(name)
+    # plt.show()
 
     return heatmap 
 
