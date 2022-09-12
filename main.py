@@ -159,12 +159,12 @@ class App(tk.Tk):
         center_x = int(screen_width/2 - window_width / 2)
         center_y = int(screen_height/2 - window_height / 2)
 
-        self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+        # self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
     #---------------------------
         
         #window is resizable
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
+        # self.columnconfigure(0, weight=1)
+        # self.rowconfigure(0, weight=1)
 
     
     # creating a container
@@ -341,7 +341,7 @@ class Page2(ttk.Frame):
         button1 = ttk.Button(control, text="Starte Mousetracking!", command=lambda : StartPositionTrack())
         button1.grid(row=10, column=1)
 
-        button3 = ttk.Button(control, text="Stoppe Tracking", command=lambda : StopPositionTrack)
+        button3 = ttk.Button(control, text="Stoppe Tracking", command=lambda : StopPositionTrack())
         button3.grid(row=10, column=2)     
 
         button2 = ttk.Button(control, text="back", command=lambda : controller.show_frame(Page1))
