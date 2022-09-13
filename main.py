@@ -64,6 +64,10 @@ def StopPositionTrack():
     # mouse Tracking stoppen
     listener.stop()
 
+
+    #----------
+    #Calcualtions, Outputs an creating files
+    #just computze, if checkbutton == true
     Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
     Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
 
@@ -159,17 +163,22 @@ class App(tk.Tk):
         center_x = int(screen_width/2 - window_width / 2)
         center_y = int(screen_height/2 - window_height / 2)
 
-        # self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+        self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
     #---------------------------
         
         #window is resizable
-        # self.columnconfigure(0, weight=1)
-        # self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
     
     # creating a container
-        container = ttk.Frame(self)
-        container.pack(side="top", fill="both", expand=True)
+        # s = ttk.Style()
+        # s.configure('Danger.TFrame', background='red', borderwidth=5, relief='raised')
+
+        container = ttk.Frame(self, relief='sunken', width=window_width, height=window_height,  borderwidth=2)#, padding=), style='Danger.TFrame'
+        # container.pack(side="top", fill="both", expand=True)
+        container.grid(row=0, column=0, padx=window_width-10, pady=window_height-10, sticky='n')
+
 
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
@@ -205,19 +214,22 @@ class StartPage(ttk.Frame):
 
         #---------Teil 1 Überschrift---------------------
 
-        headline = ttk.Frame(self, relief="ridge").pack()
+        headline = ttk.Frame(self, relief="ridge").grid(row=0, column=0)
        
-        label1 = ttk.Label(headline, text="Startseite von Mousetrack", relief="ridge").pack()
+        label1 = ttk.Label(headline, text="Startseite von Mousetrack", relief="ridge").grid()
+        # ueberschrift = StringVar
+        # text=ueberschrift
+        # ueberschrift.set('neue Überschrift')
        
         #---------Teil 2 Body---------------------
         
-        body = ttk.Frame(self, relief="raised").pack(expand=True)
+        body = ttk.Frame(self, relief="raised").grid(row=1, column=0)
 
         #---------Teil 3 control---------------------
         
-        control = ttk.Frame(self, relief="raised").pack(expand=True)
+        control = ttk.Frame(self, relief="raised").grid(row=2, column=0)
         #buttons to switch between pages
-        button1 = ttk.Button(control, text="next", command=lambda : controller.show_frame(Page1)).pack(ipadx=10, ipady=10, expand=True)
+        button1 = ttk.Button(control, text="next", command=lambda : controller.show_frame(Page1)).grid()
 
 
 class Page1(ttk.Frame):
@@ -259,26 +271,34 @@ class Page1(ttk.Frame):
 
 
         #Eingabe row 1
-        name_dataset = tk.StringVar()
-        tk.Entry(body, textvariable=name_dataset, bd=5).grid(row=1, column=1)
+        self.name_dataset = tk.StringVar()
+        ttk.Entry(body, width=10, textvariable=self.name_dataset).grid(row=1, column=1)
+        #self.name_dataset.get() #zur Datenspeicherung
 
         #Eingabe 2
-        handvar1 = tk.IntVar()
-        ttk.Checkbutton(body, text="links", variable=handvar1).grid(row=2, column=1, sticky="w")
-        handvar2 = tk.IntVar()
-        ttk.Checkbutton(body, text="rechts", variable=handvar2).grid(row=2, column=2, sticky="w")
+        #alternativ radiobutton
+        self.handvar = tk.StringVar()
+        ttk.Radiobutton(body, text='links', variable=self.handvar, value='left').grid(row=2, column=1, sticky="w")
+
+        ttk.Radiobutton(body, text='rechts', variable=self.handvar, value='right').grid(row=2, column=2, sticky="w")
+
+        
+        # self.handvar1 = tk.BooleanVar()
+        # ttk.Checkbutton(body, text="links", variable=self.handvar1, onvalue=True, offvalue=False).grid(row=2, column=1, sticky="w")
+        # self.handvar2 = tk.IntVar()
+        # ttk.Checkbutton(body, text="rechts", variable=self.handvar2).grid(row=2, column=2, sticky="w") #onvalue= , offvalue=
 
         #Eingabe 3
 
         #Eingabe 4
 
         #Eingabe 5
-        checkvar1 = tk.IntVar()
-        ttk.Checkbutton(body, text="männlich", variable=checkvar1, ).grid(row=5, column=1, sticky="w")
-        checkvar2 = tk.IntVar()
-        ttk.Checkbutton(body, text="weiblich", variable=checkvar2).grid(row=5, column=2, sticky="w")
-        checkvar3 = tk.IntVar()
-        ttk.Checkbutton(body, text="divers", variable=checkvar3).grid(row=5, column=3, sticky="w")        
+        self.checkvar1 = tk.IntVar()
+        ttk.Checkbutton(body, text="männlich", variable=self.checkvar1).grid(row=5, column=1, sticky="w")
+        self.checkvar2 = tk.IntVar()
+        ttk.Checkbutton(body, text="weiblich", variable=self.checkvar2).grid(row=5, column=2, sticky="w")
+        self.checkvar3 = tk.IntVar()
+        ttk.Checkbutton(body, text="divers", variable=self.checkvar3).grid(row=5, column=3, sticky="w")        
 
 
 
@@ -289,7 +309,7 @@ class Page1(ttk.Frame):
 
         #creating buttons to switch between pages
         #anderer Ansatz:Buttons in oberem Bereich der Seite platzieren, siehe Anika
-        button1 = ttk.Button(control, text="next", command=lambda : controller.show_frame(Page2))
+        button1 = ttk.Button(control, text="next", command=lambda : controller.show_frame(Page2)) #without lambda?
         button1.grid(row=10, column=2)
 
         button2 = ttk.Button(control, text="back", command=lambda : controller.show_frame(StartPage))
@@ -361,9 +381,12 @@ if __name__ == "__main__":
 
     listener = mouse.Listener(on_move=on_move, on_click=on_click)
 
-    #for child in app.winfo_children(): 
-    #        child.grid_configure(padx=5, pady=5)
+    for child in app.winfo_children(): 
+           child.grid_configure(padx=5, pady=5)
+
     app.mainloop()
+
+# root.bind("<Return>", show_frame)
 
 #Aublick
 # Version 1.0.6
