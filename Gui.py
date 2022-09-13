@@ -89,6 +89,7 @@ if __name__ == "__main__":
            child.grid_configure(padx=5, pady=5)
 
     print(app.grid_slaves())
-    for w in app.grid_slaves(): print(w)
-
+    for w in app.grid_slaves(row=2): print(w)
+    # namelbl.grid_info()
+    #namelbl.grid_configure(sticky=(E,W))
     app.mainloop()

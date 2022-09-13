@@ -272,8 +272,10 @@ class Page1(ttk.Frame):
 
         #Eingabe row 1
         self.name_dataset = tk.StringVar()
-        ttk.Entry(body, width=10, textvariable=self.name_dataset).grid(row=1, column=1)
-        #self.name_dataset.get() #zur Datenspeicherung
+        ttk.Entry(body, width=10, textvariable=self.name_dataset).grid(row=1, column=1) #validatecommand
+        #self.name_dataset = 
+        # or : xxxx = ttk.Entry ---> xxxx.get() #zur Datenspeicherung
+        #detect changes with trace method
 
         #Eingabe 2
         #alternativ radiobutton
@@ -289,7 +291,8 @@ class Page1(ttk.Frame):
         # ttk.Checkbutton(body, text="rechts", variable=self.handvar2).grid(row=2, column=2, sticky="w") #onvalue= , offvalue=
 
         #Eingabe 3
-
+        #use of combobox?
+        #ähnlich zu bekannten Methoden? (-> Formulare internet)
         #Eingabe 4
 
         #Eingabe 5
