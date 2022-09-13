@@ -42,7 +42,9 @@ class App(tk.Tk):
         # container.grid_columnconfigure(0, weight = 1)
 
         # initializing frames to an empty array
+
         self.frames = {}
+        
         
         # iterating through a tuple consisting
         # of the different page layouts
@@ -55,7 +57,7 @@ class App(tk.Tk):
             # for loop
             self.frames[F] = frame
 
-            frame.grid(row = 0, column = 0, sticky ="nsew")
+            frame.grid(sticky ="nsew")
 
         self.show_frame(StartPage)
 
