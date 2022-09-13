@@ -34,12 +34,12 @@ class App(tk.Tk):
         # s = ttk.Style()
         # s.configure('Danger.TFrame', background='red', borderwidth=5, relief='raised')
 
-        container = ttk.Frame(self, width=window_width, height=window_height, relief='sunken', borderwidth=2)#, padding=), style='Danger.TFrame'
+        container = ttk.Frame(self, width=window_width, height=window_height, relief='sunken')#, padding=), style='Danger.TFrame'
         # container.pack(side="top", fill="both", expand=True)
-        container.grid(row=0, column=0, padx=window_width, pady=window_height)
+        container.grid(sticky='nesw', padx=window_width, pady=window_height)
 
-        container.grid_rowconfigure(0, weight = 1)
-        container.grid_columnconfigure(0, weight = 1)
+        # container.grid_rowconfigure(0, weight = 1)
+        # container.grid_columnconfigure(0, weight = 1)
 
         # initializing frames to an empty array
         self.frames = {}
