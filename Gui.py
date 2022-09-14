@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
+
+LARGE_FONT = ("Verdana", 12)
+
+
 # https://www.youtube.com/watch?v=A0gaXfM1UN0&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=2
 #Test for Page 1
 class App(tk.Tk):
@@ -70,8 +74,9 @@ class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
         #init function for class Frame
         ttk.Frame.__init__(self, parent)
-
-        part_one = ttk.Frame()
+        label = ttk.Label(text="StartPage", font=LARGE_FONT)
+        label.grid()
+        # part_one = ttk.Frame()
 
 
 class Page1(ttk.Frame):
@@ -88,11 +93,11 @@ if __name__ == "__main__":
     
     app = App()
 
-    for child in app.winfo_children(): 
-           child.grid_configure(padx=5, pady=5)
+    # for child in app.winfo_children(): 
+    #        child.grid_configure(padx=5, pady=5)
 
-    print(app.grid_slaves())
-    for w in app.grid_slaves(row=2): print(w)
+    # print(app.grid_slaves())
+    # for w in app.grid_slaves(row=2): print(w)
     # namelbl.grid_info()
     #namelbl.grid_configure(sticky=(E,W))
     app.mainloop()
