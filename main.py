@@ -177,7 +177,7 @@ class App(tk.Tk):
 
         container = ttk.Frame(self, relief='sunken', width=window_width, height=window_height,  borderwidth=2)#, padding=), style='Danger.TFrame'
         # container.pack(side="top", fill="both", expand=True)
-        container.grid(row=0, column=0, padx=window_width-10, pady=window_height-10, sticky='n')
+        container.grid(row=0, column=0, padx=window_width-10, pady=window_height-10, sticky='nesw')
 
 
         container.grid_rowconfigure(0, weight = 1)
@@ -239,7 +239,7 @@ class Page1(ttk.Frame):
 
         #---------Teil 1 Überschrift---------------------
         headline = ttk.Frame(self)
-        headline.pack(side="top", expand=True, fill="both")
+        headline.grid(row=0, column=0, sticky='nesw')
 
         label1  = ttk.Label(headline, text="Seite 1: Informationen", font=(50))
         label1.grid(row=0, column=0)
@@ -249,8 +249,8 @@ class Page1(ttk.Frame):
 
         #---------Teil 2 Body---------------------
         
-        body = ttk.Frame(self)
-        body.pack(side="top", expand=True, fill="both")
+        body = ttk.Frame(self) #labelframe?
+        body.grid(row=1, column=0, sticky='nesw')
 
         #Liste der Labels
         labels_abfrage = [
@@ -293,6 +293,7 @@ class Page1(ttk.Frame):
         #Eingabe 3
         #use of combobox?
         #ähnlich zu bekannten Methoden? (-> Formulare internet)
+        #spinbox
         #Eingabe 4
 
         #Eingabe 5
@@ -308,7 +309,7 @@ class Page1(ttk.Frame):
         #---------Teil 3 Controls---------------------
 
         control = ttk.Frame(self)
-        control.pack(side="top", expand=True, fill="both")
+        control.grid(row=2, column=0, sticky='nesw')
 
         #creating buttons to switch between pages
         #anderer Ansatz:Buttons in oberem Bereich der Seite platzieren, siehe Anika
@@ -326,7 +327,7 @@ class Page2(ttk.Frame):
         #---------Teil 1 Überschrift---------------------
 
         headline = ttk.Frame(self)
-        headline.pack(side="top", expand=True, fill="both")
+        headline.grid(row=0, column=0, sticky='nesw')
 
         label1  = ttk.Label(headline, text="Seite 2: Einstellungen", font=(50))
         label1.grid(row=0, column=0)
@@ -335,7 +336,7 @@ class Page2(ttk.Frame):
         #---------Teil 2 Body---------------------
         
         body = ttk.Frame(self)
-        body.pack(side="top", expand=True, fill="both")
+        body.grid(row=1, column=0, sticky='nesw')
 
         #Liste der Labels
         labels_einstellungen = [
@@ -356,7 +357,7 @@ class Page2(ttk.Frame):
         #---------Teil 3 controls---------------------
 
         control = ttk.Frame(self)
-        control.pack(side="top", expand=True, fill="both")
+        control.grid(row=2, column=0, sticky='nesw')
 
         #creating buttons to switch between pages
         #anderer Ansatz:Buttons in oberem Bereich der Seite platzieren, siehe Anika
@@ -396,9 +397,8 @@ if __name__ == "__main__":
 #     die zuvor hinzugefügten Features werden in ein GUI eingefügt
 #         1. Seite 1 zur Informationsabfrage
 #         2. Seite 2 zum Vornehmen von Einstellungen und Starten der Anwendung
-#         
-#         4. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
-
+#         3. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
+#         Es gibt nun die Möglickeit genau auszuwählen, was mit den Daten im Nachhinein geschieht
         # Zukunft: 
         # 3. Live Seite während des Trackings mit Timer und Stop
 

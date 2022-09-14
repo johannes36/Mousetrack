@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+# https://www.youtube.com/watch?v=A0gaXfM1UN0&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=2
 #Test for Page 1
 class App(tk.Tk):
     #init function for class App,  general information, settings of GUI
@@ -28,7 +29,7 @@ class App(tk.Tk):
         #window is resizable
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-
+        # self.grid_rowconfigure(0, weight = 1)
     
     # creating a container
         # s = ttk.Style()
@@ -44,26 +45,24 @@ class App(tk.Tk):
         # initializing frames to an empty array
 
         self.frames = {}
-        
-        
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (StartPage, Page1):#, Page1, Page2):
+        for F in (StartPage, Page1):#Page2):
             
+            #Startpage(container, App)
             frame = F(container, self)
 
             # initializing frame of that object from
             # startpage, page1, page2 respectively with
             # for loop
             self.frames[F] = frame
-
-            frame.grid(sticky ="nsew")
+            frame.grid()#sticky ="nsew")
 
         self.show_frame(StartPage)
 
-    def show_frame(self, cont):
+    def show_frame(self, cont): #show_frame(App, Startpage)
 
-        frame = self.frames[cont]
+        frame = self.frames[cont] #App.frames[Startpage]
         #frame.reset()
         frame.tkraise()
 
@@ -71,6 +70,8 @@ class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
         #init function for class Frame
         ttk.Frame.__init__(self, parent)
+
+        part_one = ttk.Frame()
 
 
 class Page1(ttk.Frame):
@@ -81,7 +82,7 @@ class Page1(ttk.Frame):
 
 
 
-
+ 
 
 if __name__ == "__main__":
     
