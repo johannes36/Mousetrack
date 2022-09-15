@@ -4,20 +4,15 @@ from tkinter import ttk
 
 LARGE_FONT = ("Verdana", 12)
 
-
-# https://www.youtube.com/watch?v=A0gaXfM1UN0&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=2
-#Test for Page 1
 class App(tk.Tk):
-    #init function for class App,  general information, settings of GUI
-    # __init__ function for class tkinterApp
+
     def __init__(self, *args, **kwargs):
-        # __init__ function for class Tk
+
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title("Mousetrack")
-        self.iconbitmap() #eigenes Icon
+        # self.iconbitmap()
 
-    #-----------geometry of window
         window_width  = 500
         window_height = 500
 
@@ -28,65 +23,72 @@ class App(tk.Tk):
         center_y = int(screen_height/2 - window_height / 2)
 
         self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-    #---------------------------
         
-        #window is resizable
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        # self.grid_rowconfigure(0, weight = 1)
     
-    # creating a container
-        # s = ttk.Style()
-        # s.configure('Danger.TFrame', background='red', borderwidth=5, relief='raised')
-
-        container = ttk.Frame(self, width=window_width, height=window_height, relief='sunken')#, padding=), style='Danger.TFrame'
-        # container.pack(side="top", fill="both", expand=True)
-        container.grid(sticky='nesw', padx=window_width, pady=window_height)
-
-        # container.grid_rowconfigure(0, weight = 1)
-        # container.grid_columnconfigure(0, weight = 1)
-
-        # initializing frames to an empty array
+        container = ttk.Frame(self, relief="sunken", borderwidth=10)
+        container.grid(sticky="nsew")
+        container.grid_rowconfigure(0, weight = 1)
+        container.grid_columnconfigure(0, weight = 1)
 
         self.frames = {}
-        # iterating through a tuple consisting
-        # of the different page layouts
-        for F in (StartPage, Page1):#Page2):
-            
-            #Startpage(container, App)
-            frame = F(container, self)
-
-            # initializing frame of that object from
-            # startpage, page1, page2 respectively with
-            # for loop
+        for F in (StartPage, PageOne, PageTwo):
+            frame = F(parent=container, controller=self)
             self.frames[F] = frame
-            frame.grid()#sticky ="nsew")
+            frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(StartPage)
 
-    def show_frame(self, cont): #show_frame(App, Startpage)
+    def show_frame(self, page_name):
 
-        frame = self.frames[cont] #App.frames[Startpage]
-        #frame.reset()
+        frame = self.frames[page_name]
         frame.tkraise()
 
 class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
-        #init function for class Frame
         ttk.Frame.__init__(self, parent)
-        label = ttk.Label(text="StartPage", font=LARGE_FONT)
-        label.grid()
-        # part_one = ttk.Frame()
+        
+        self.style = ttk.Style()
+        self.style.configure("header.TFrame", background="green")
+        
+        header = ttk.Frame(self, style="header.TFrame", borderwidth=10).grid(sticky="nsew")#pack(expand=True, fill="both")#grid(sticky="nsew")
+        self.style = ttk.Style()
+        self.style.configure("header.TFrame", background="green")
+        # header = ttk.Frame(self, style="header.TFrame").grid(row=0, column=0)
+        # ttk.Label(header, text="Kopf Bereich").grid()
+
+        # # ttk.Label(header, text="This is the header area of the StartPage", font=LARGE_FONT).grid(row=0, column=0, rowspan=2, columnspan=5, sticky="nsew")
+        # self.style.configure("body.TFrame", background="red")
+        # body    = ttk.Frame(self, style="body.TFrame").grid(row=1, column=0)
+
+        # self.style.configure("control.TFrame", background="yellow")
+        # control = ttk.Frame(self, style="control.TFrame").grid(row=2, column=0)
+        # ttk.Label(control, text="Control Bereich").grid()
 
 
-class Page1(ttk.Frame):
+        # label1 = ttk.Label(self, text="This is the Headersssssssssssss", font=LARGE_FONT)
+        # label1.grid(row=1, column=3, sticky="n")
+        # label2 = ttk.Label(self, text="This is the Body", font=LARGE_FONT)
+        # label2.grid(row=0, column=2, sticky="e")
+        # label3 = ttk.Label(self, text="This is the control", font=LARGE_FONT)
+        # label3.grid(row=0, column=3, sticky="ew")
+
+class PageOne(ttk.Frame):
     def __init__(self, parent, controller):
-        #init function for class Frame
         ttk.Frame.__init__(self, parent)
 
+        ttk.Label(self, text="Das ist die Ueberschrift von Page One").grid(row=0, column=0, rowspan=2, columnspan=5, sticky="nsew")
 
+        labels_abfrage = ["Datensatz Name:", "starke Hand:", "Alter", "Technikaffinität", "Geschlecht"]
+        for index_row, text in enumerate(labels_abfrage):
+            ttk.Label(self, text=text).grid(row=index_row+2, column=0, sticky="nsew")
 
+        ttk.Label(self, text="Hier ist der Kontrollbereich").grid(row=len(labels_abfrage)+2, column=0)
 
+class PageTwo(ttk.Frame):
+    def __init__(self, parent, controller):
+        ttk.Frame.__init__(self, parent)
  
 
 if __name__ == "__main__":

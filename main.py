@@ -175,9 +175,9 @@ class App(tk.Tk):
         # s = ttk.Style()
         # s.configure('Danger.TFrame', background='red', borderwidth=5, relief='raised')
 
-        container = ttk.Frame(self, relief='sunken', width=window_width, height=window_height,  borderwidth=2)#, padding=), style='Danger.TFrame'
+        container = ttk.Frame(self, relief='sunken', borderwidth=2)#, padding=), style='Danger.TFrame'
         # container.pack(side="top", fill="both", expand=True)
-        container.grid(row=0, column=0, padx=window_width-10, pady=window_height-10, sticky='nesw')
+        container.grid(sticky="nsew")#padx=window_width-10, pady=window_height-10, sticky='nsew')
 
 
         container.grid_rowconfigure(0, weight = 1)
@@ -214,8 +214,12 @@ class StartPage(ttk.Frame):
 
         #---------Teil 1 Überschrift---------------------
 
-        headline = ttk.Frame(self, relief="ridge").grid(row=0, column=0)
-       
+        style = ttk.Style(self)
+        style.configure("head.TFrame",foreground="black",
+                                         background="red",
+                                         font = "Verdana 12 underline")
+
+        headline = ttk.Frame(self, relief="ridge", style="head.TFrame").grid(row=0, column=0)
         label1 = ttk.Label(headline, text="Startseite von Mousetrack", relief="ridge").grid()
         # ueberschrift = StringVar
         # text=ueberschrift
@@ -239,7 +243,7 @@ class Page1(ttk.Frame):
 
         #---------Teil 1 Überschrift---------------------
         headline = ttk.Frame(self)
-        headline.grid(row=0, column=0, sticky='nesw')
+        headline.grid(row=0, column=0, sticky='nesw', rowspan=2, columnspan=5)
 
         label1  = ttk.Label(headline, text="Seite 1: Informationen", font=(50))
         label1.grid(row=0, column=0)
@@ -250,7 +254,7 @@ class Page1(ttk.Frame):
         #---------Teil 2 Body---------------------
         
         body = ttk.Frame(self) #labelframe?
-        body.grid(row=1, column=0, sticky='nesw')
+        body.grid(row=2, column=0, sticky='nesw')
 
         #Liste der Labels
         labels_abfrage = [
@@ -262,12 +266,13 @@ class Page1(ttk.Frame):
         ]        
         #Label anordnen
         for idx, text in enumerate(labels_abfrage):
-            
+            print(idx)
+            print(text)
             # Create a Label widget with the text from the labels list
             label = ttk.Label(body, text=text)
 
             # Use the grid geometry manager to place the Label widgets in the row whose index is idx
-            label.grid(row=idx+1, column=0, sticky='w')
+            label.grid(row=idx+1, column=0, sticky='w', columnspan=2)
 
 
         #Eingabe row 1
@@ -309,7 +314,7 @@ class Page1(ttk.Frame):
         #---------Teil 3 Controls---------------------
 
         control = ttk.Frame(self)
-        control.grid(row=2, column=0, sticky='nesw')
+        control.grid(row=3, column=0, sticky='nesw')
 
         #creating buttons to switch between pages
         #anderer Ansatz:Buttons in oberem Bereich der Seite platzieren, siehe Anika
