@@ -53,14 +53,29 @@ class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
         
-        label = ttk.Label(self, text="Start Page", font=LARGE_FONT)
-        label.grid()
+        header = ttk.Frame(self, relief="raised", borderwidth=5)
+        header.grid()
 
-        button = ttk.Button(self, text="Visit Page 1",
+        body = ttk.Frame(self, relief="sunken", borderwidth=5)
+        body.grid()
+        
+        control = ttk.Frame(self, relief="raised", borderwidth=5)
+        control.grid()
+
+        label_header = ttk.Label(header, text="Head of Start Page", font=LARGE_FONT)
+        label_header.grid()
+
+        label_body = ttk.Label(body, text="Body of Start Page", font=LARGE_FONT)
+        label_body.grid()
+
+        label_control = ttk.Label(control, text="Control of Start Page", font=LARGE_FONT)
+        label_control.grid()
+
+        button = ttk.Button(control, text="Visit Page 1",
                             command=lambda: controller.show_frame(PageOne))
         button.grid()
 
-        button2 = ttk.Button(self, text="Visit Page 2",
+        button2 = ttk.Button(control, text="Visit Page 2",
                             command=lambda: controller.show_frame(PageTwo))
         button2.grid()
 
