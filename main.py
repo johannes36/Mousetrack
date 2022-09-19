@@ -14,17 +14,19 @@ import pandas as pd
 #to install requirements use:
 # pip install -r requirements.txt
 
-move_x   = []   #Liste der Mauspositionen
+#dictionary to safe data??
+
+move_x   = []
 move_y   = []
-click_x  = []  #Lister der Klickpositionen
+click_x  = [] 
 click_y  = []
-time_move   = [] #Liste der Zeitpunkte der Bewegungen
-time_click  = [] #Liste der Zeitpunkte der Klicks
+time_move   = [] 
+time_click  = []
 
 # The callback to call when mouse move events occur
 def on_move(x, y):
 
-    #print('Maus bewegt zu {0}'.format((x, y)))
+    print('Maus bewegt zu {0}'.format((x, y)))
     # Daten in Liste abspeichern
     move_x.append(x)
     move_y.append(y)
@@ -33,7 +35,7 @@ def on_move(x, y):
 #sobald irgendein mouse klick occurs (left, right, ..) wird diese position in Datei geschrieben
 #-----> Ausblick: nur Left clicks relevant?
 def on_click(x, y, button, pressed):
-    #print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+    print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
     print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
 
     #nur left klicks, keine release sind interessant
@@ -41,6 +43,7 @@ def on_click(x, y, button, pressed):
         click_x.append(x)
         click_y.append(y)
         time_click.append(time.time()- starttime)
+
 
 def StartPositionTrack():
     # Beginn des Trackings
@@ -63,6 +66,10 @@ def StopPositionTrack():
     # mouse Tracking stoppen
     listener.stop()
 
+
+    #----------
+    #Calcualtions, Outputs an creating files
+    #just computze, if checkbutton == true
     Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
     Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
 
@@ -78,8 +85,6 @@ def StopPositionTrack():
     # CalculateVelocity(move_x, move_y, time_move)
     CalculateVelocity(click_x, click_y, time_click)
 
-    
-
 def CalculateVelocity(data_x, data_y, time_event): #acceleration = veränderung von v
     velo_x = np.empty(shape=(np.shape(data_x)))
     velo_y = np.empty(shape=(np.shape(data_y)))
@@ -94,10 +99,9 @@ def CalculateVelocity(data_x, data_y, time_event): #acceleration = veränderung 
             velo_y[i] = (abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1])
 
 
-    print(velo_x)
-    print(velo_y)
+    # print(velo_x)
+    # print(velo_y)
     return velo_x, velo_y
-
 
 def CalculateAcceleration():
     pass
@@ -105,8 +109,8 @@ def CalculateAcceleration():
 def CalculateHeatmap(x_Data, y_Data, name):
 
     heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
-    print(type(heatmap))
-    print(np.shape(heatmap))
+    # print(type(heatmap))
+    # print(np.shape(heatmap))
 
     for i in range(len(x_Data)):
         heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
@@ -141,38 +145,260 @@ def Save_Heatmap(data, filename):
             file.writelines(str(y) + '\n')
 
 
+class App(tk.Tk):
+    #init function for class App
+    # __init__ function for class tkinterApp
+    def __init__(self, *args, **kwargs):
+        # __init__ function for class Tk
+        tk.Tk.__init__(self, *args, **kwargs)
 
-app = tk.Tk()
-app.title("Mousetrack")
+        self.title("Mousetrack")
+        self.iconbitmap() #eigenes Icon
+
+    #-----------geometry of window
+        window_width  = 500
+        window_height = 500
+
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        center_x = int(screen_width/2 - window_width / 2)
+        center_y = int(screen_height/2 - window_height / 2)
+
+        self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+    #---------------------------
+        
+        #window is resizable
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+    
+    # creating a container
+        # s = ttk.Style()
+        # s.configure('Danger.TFrame', background='red', borderwidth=5, relief='raised')
+
+        container = ttk.Frame(self, relief='sunken', borderwidth=2)#, padding=), style='Danger.TFrame'
+        # container.pack(side="top", fill="both", expand=True)
+        container.grid(sticky="nsew")#padx=window_width-10, pady=window_height-10, sticky='nsew')
 
 
-wholePage = tk.Frame(app).grid()
+        container.grid_rowconfigure(0, weight = 1)
+        container.grid_columnconfigure(0, weight = 1)
 
-label1 = tk.Label(wholePage, text="Input 1:").grid(row=0, column=0, rowspan=2, columnspan=4)
-label2 = tk.Label(wholePage, text="Check 1:").grid(row=2, column=0, rowspan=2, columnspan=4)
+        # initializing frames to an empty array
+        self.frames = {}
+        
+        # iterating through a tuple consisting
+        # of the different page layouts
+        for F in (StartPage, Page1, Page2):
+            
+            frame = F(container, self)
 
-# start only once callable, for new start, new thread has to be started
-button_Start = ttk.Button(wholePage, text="Starte Anwendung", command=lambda: StartPositionTrack()).grid(row=4, column=0)
-button_Stopp = ttk.Button(wholePage, text="Stopp", command=lambda: StopPositionTrack()).grid(row=4, column=1)
+            # initializing frame of that object from
+            # startpage, page1, page2 respectively with
+            # for loop
+            self.frames[F] = frame
+
+            frame.grid(row = 0, column = 0, sticky ="nsew")
+
+        self.show_frame(StartPage)
+
+    def show_frame(self, cont):
+
+        frame = self.frames[cont]
+        #frame.reset()
+        frame.tkraise()
+
+class StartPage(ttk.Frame):
+    def __init__(self, parent, controller):
+        #init function for class Frame
+        ttk.Frame.__init__(self, parent)
+
+        #---------Teil 1 Überschrift---------------------
+
+        style = ttk.Style(self)
+        style.configure("head.TFrame",foreground="black",
+                                         background="red",
+                                         font = "Verdana 12 underline")
+
+        headline = ttk.Frame(self, relief="ridge", style="head.TFrame").grid(row=0, column=0)
+        label1 = ttk.Label(headline, text="Startseite von Mousetrack", relief="ridge").grid()
+        # ueberschrift = StringVar
+        # text=ueberschrift
+        # ueberschrift.set('neue Überschrift')
+       
+        #---------Teil 2 Body---------------------
+        
+        body = ttk.Frame(self, relief="raised").grid(row=1, column=0)
+
+        #---------Teil 3 control---------------------
+        
+        control = ttk.Frame(self, relief="raised").grid(row=2, column=0)
+        #buttons to switch between pages
+        button1 = ttk.Button(control, text="next", command=lambda : controller.show_frame(Page1)).grid()
 
 
-# controller = mouse.Controller()
-listener = mouse.Listener(on_move=on_move, on_click=on_click)
+class Page1(ttk.Frame):
+    def __init__(self, parent, controller):
+        #init function for class Frame
+        ttk.Frame.__init__(self, parent)
+
+        #---------Teil 1 Überschrift---------------------
+        headline = ttk.Frame(self)
+        headline.grid(row=0, column=0, sticky='nesw', rowspan=2, columnspan=5)
+
+        label1  = ttk.Label(headline, text="Seite 1: Informationen", font=(50))
+        label1.grid(row=0, column=0)
+
+        
+
+
+        #---------Teil 2 Body---------------------
+        
+        body = ttk.Frame(self) #labelframe?
+        body.grid(row=2, column=0, sticky='nesw')
+
+        #Liste der Labels
+        labels_abfrage = [
+        "Datensatz Name:",
+        "starke Hand:",
+        "Alter",
+        "Technikaffinität",
+        "Geschlecht"
+        ]        
+        #Label anordnen
+        for idx, text in enumerate(labels_abfrage):
+            print(idx)
+            print(text)
+            # Create a Label widget with the text from the labels list
+            label = ttk.Label(body, text=text)
+
+            # Use the grid geometry manager to place the Label widgets in the row whose index is idx
+            label.grid(row=idx+1, column=0, sticky='w', columnspan=2)
+
+
+        #Eingabe row 1
+        self.name_dataset = tk.StringVar()
+        ttk.Entry(body, width=10, textvariable=self.name_dataset).grid(row=1, column=1) #validatecommand
+        #self.name_dataset = 
+        # or : xxxx = ttk.Entry ---> xxxx.get() #zur Datenspeicherung
+        #detect changes with trace method
+
+        #Eingabe 2
+        #alternativ radiobutton
+        self.handvar = tk.StringVar()
+        ttk.Radiobutton(body, text='links', variable=self.handvar, value='left').grid(row=2, column=1, sticky="w")
+
+        ttk.Radiobutton(body, text='rechts', variable=self.handvar, value='right').grid(row=2, column=2, sticky="w")
+
+        
+        # self.handvar1 = tk.BooleanVar()
+        # ttk.Checkbutton(body, text="links", variable=self.handvar1, onvalue=True, offvalue=False).grid(row=2, column=1, sticky="w")
+        # self.handvar2 = tk.IntVar()
+        # ttk.Checkbutton(body, text="rechts", variable=self.handvar2).grid(row=2, column=2, sticky="w") #onvalue= , offvalue=
+
+        #Eingabe 3
+        #use of combobox?
+        #ähnlich zu bekannten Methoden? (-> Formulare internet)
+        #spinbox
+        #Eingabe 4
+
+        #Eingabe 5
+        self.checkvar1 = tk.IntVar()
+        ttk.Checkbutton(body, text="männlich", variable=self.checkvar1).grid(row=5, column=1, sticky="w")
+        self.checkvar2 = tk.IntVar()
+        ttk.Checkbutton(body, text="weiblich", variable=self.checkvar2).grid(row=5, column=2, sticky="w")
+        self.checkvar3 = tk.IntVar()
+        ttk.Checkbutton(body, text="divers", variable=self.checkvar3).grid(row=5, column=3, sticky="w")        
+
+
+
+        #---------Teil 3 Controls---------------------
+
+        control = ttk.Frame(self)
+        control.grid(row=3, column=0, sticky='nesw')
+
+        #creating buttons to switch between pages
+        #anderer Ansatz:Buttons in oberem Bereich der Seite platzieren, siehe Anika
+        button1 = ttk.Button(control, text="next", command=lambda : controller.show_frame(Page2)) #without lambda?
+        button1.grid(row=10, column=2)
+
+        button2 = ttk.Button(control, text="back", command=lambda : controller.show_frame(StartPage))
+        button2.grid(row=10, column=1)
+
+class Page2(ttk.Frame):
+    def __init__(self, parent, controller):
+        #init function for class Frame
+        ttk.Frame.__init__(self, parent)
+
+        #---------Teil 1 Überschrift---------------------
+
+        headline = ttk.Frame(self)
+        headline.grid(row=0, column=0, sticky='nesw')
+
+        label1  = ttk.Label(headline, text="Seite 2: Einstellungen", font=(50))
+        label1.grid(row=0, column=0)
+
+
+        #---------Teil 2 Body---------------------
+        
+        body = ttk.Frame(self)
+        body.grid(row=1, column=0, sticky='nesw')
+
+        #Liste der Labels
+        labels_einstellungen = [
+        "Geschwindigkeit:",
+        "Beschleunigung:",
+        "Daten in CSV-File speichern",
+        "Dauer der Anwendung",
+        ]
+
+        for idx, text in enumerate(labels_einstellungen):
+            
+            # Create a Label widget with the text from the labels list
+            label = ttk.Label(body, text=text)
+
+            # Use the grid geometry manager to place the Label widgets in the row whose index is idx
+            label.grid(row=idx+1, column=0, sticky='w')
+
+        #---------Teil 3 controls---------------------
+
+        control = ttk.Frame(self)
+        control.grid(row=2, column=0, sticky='nesw')
+
+        #creating buttons to switch between pages
+        #anderer Ansatz:Buttons in oberem Bereich der Seite platzieren, siehe Anika
+        # start only once callable, for new start, new thread has to be started
+        button1 = ttk.Button(control, text="Starte Mousetracking!", command=lambda : StartPositionTrack())
+        button1.grid(row=10, column=1)
+
+        button3 = ttk.Button(control, text="Stoppe Tracking", command=lambda : StopPositionTrack())
+        button3.grid(row=10, column=2)     
+
+        button2 = ttk.Button(control, text="back", command=lambda : controller.show_frame(Page1))
+        button2.grid(row=10, column=3)
+
+   
+        
+
+
 
 
 # shortcut to stop imediately 
 
+if __name__ == "__main__":
+    
+    app = App()
 
-app.mainloop()
+    listener = mouse.Listener(on_move=on_move, on_click=on_click)
 
+    for child in app.winfo_children(): 
+           child.grid_configure(padx=5, pady=5)
 
-#Aublick
-# Version 1.0.5
-#     die zuvor hinzugefügten Features werden in ein GUI eingefügt
-#         1. Seite 1 zur Informationsabfrage
-#         2. Seite 2 zum Vornehmen von Einstellungen und Starten der Anwendung
-#         3. Live Seite während des Trackings mit Timer und Stop
-#         4. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
+    app.mainloop()
+
+# root.bind("<Return>", show_frame)
+
 
        
 
