@@ -14,17 +14,19 @@ import pandas as pd
 #to install requirements use:
 # pip install -r requirements.txt
 
-move_x   = []   #Liste der Mauspositionen
+#dictionary to safe data??
+
+move_x   = []
 move_y   = []
-click_x  = []  #Lister der Klickpositionen
+click_x  = [] 
 click_y  = []
-time_move   = [] #Liste der Zeitpunkte der Bewegungen
-time_click  = [] #Liste der Zeitpunkte der Klicks
+time_move   = [] 
+time_click  = []
 
 # The callback to call when mouse move events occur
 def on_move(x, y):
 
-    #print('Maus bewegt zu {0}'.format((x, y)))
+    print('Maus bewegt zu {0}'.format((x, y)))
     # Daten in Liste abspeichern
     move_x.append(x)
     move_y.append(y)
@@ -33,7 +35,7 @@ def on_move(x, y):
 #sobald irgendein mouse klick occurs (left, right, ..) wird diese position in Datei geschrieben
 #-----> Ausblick: nur Left clicks relevant?
 def on_click(x, y, button, pressed):
-    #print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+    print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
     print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
 
     #nur left klicks, keine release sind interessant

@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
+import time as time
+
+from pynput import mouse as mouse
+
 
 LARGE_FONT= ("Verdana", 12)
 
@@ -28,7 +32,7 @@ class App(tk.Tk):
         self.entries_setting = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
 
         #-----window geometry
-        # self.title("Mousetrack")
+        self.title("Mousetrack")
                 
         # window_width  = 500
         # window_height = 500
@@ -61,7 +65,15 @@ class App(tk.Tk):
 
         self.show_frame(StartPage)
 
-    
+        #-------List to track behaviour
+        self.move_x   = []
+        self.move_y   = []
+        self.click_x  = [] 
+        self.click_y  = []
+        self.time_move   = [] 
+        self.time_click  = []
+
+        self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
     
     def show_frame(self, cont):
 
@@ -73,7 +85,98 @@ class App(tk.Tk):
         for index, key in enumerate (dict):
             dict[key]["value"] = entries[index].get()
         print(dict)
+    
+    def on_move(self, x, y):
 
+        print('Maus bewegt zu {0}'.format((x, y)))
+        self.move_x.append(x)
+        self.move_y.append(y)
+        self.time_move.append(time.time() - self.starttime)
+
+    def on_click(self, x, y, button, pressed):
+        print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+        print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
+
+        #nur left klicks, keine release sind interessant
+        if str(button) == 'Button.left' and pressed:
+            self.click_x.append(x)
+            self.click_y.append(y)
+            self.time_click.append(time.time()- self.starttime)
+
+    def StartPositionTrack(self):
+        self.listener.start()
+        self.starttime = time.time()
+
+    def StopPositionTrack(self):
+        self.listener.stop()
+
+        # Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
+        # Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
+
+        # heatmove = CalculateHeatmap(move_x, move_y, name="Heatmap Movement")
+        # heatclick = CalculateHeatmap(click_x, click_y, name="Heatmap Clicks")
+
+        #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
+        # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
+        # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
+
+        # move_velocity = CalculateVelocity(move_x, move_y, time_move)
+        #click_velocity = CalculateVelocity(click_x, click_y, time_click)
+        # CalculateVelocity(move_x, move_y, time_move)
+        # CalculateVelocity(click_x, click_y, time_click)
+
+    def CalculateVelocity(self, data_x, data_y, time_event): #acceleration = veränderung von v
+        # velo_x = np.empty(shape=(np.shape(data_x)))
+        # velo_y = np.empty(shape=(np.shape(data_y)))
+        pass
+        # for i in range(len(data_x)):
+        #     if i == 0:
+        #         velo_x[i] = 0
+        #         velo_y[i] = 0
+                
+        #     else:
+        #         velo_x[i] = (abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1])
+        #         velo_y[i] = (abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1])
+
+        # return velo_x, velo_y
+
+    def CalculateHeatmap(self, x_Data, y_Data, name):
+        pass
+        # heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
+        # # print(type(heatmap))
+        # # print(np.shape(heatmap))
+
+        # for i in range(len(x_Data)):
+        #     heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
+
+        # # print(np.max(np.max(heatmap)))
+        # # plt.imshow(heatmap) #, cmap='gray')
+        # # plt.title(name)
+        # # plt.show()
+
+        # return heatmap 
+
+    def Save2D_Data_with_Time(self, data_x, data_y, time, filename):
+        #function to write data in csv file with timepoints
+        #data has 3 inputs, x, y and time 
+        #daten und Klicks mit Zeitpunkten in File speichern
+
+            # if os.path.exists("demo.txt"):
+        #     #kreiere eine neue Datei, mit anderer Endung
+        #     os.remove("demo.txt")
+        #     file = open("demo.txt", "w")
+        # else:
+        #     file = open("demo.txt", "x")
+
+        with open(filename, "w") as file:
+            for pos in data_x, data_y, time:
+                file.writelines(str(pos) + '\n')
+
+    def Save_Heatmap(self, data, filename):
+        with open(filename, "w") as file:
+            for x, y in data:
+                file.writelines(str(x) + '\n')
+                file.writelines(str(y) + '\n')
 
 
 class StartPage(tk.Frame):
@@ -110,7 +213,6 @@ class StartPage(tk.Frame):
 
         ttk.Button(control, text="Seite 2",
                             command=lambda: controller.show_frame(PageTwo)).grid(row=1, column=1)
-
 
 class PageOne(tk.Frame):
 
@@ -170,7 +272,6 @@ class PageOne(tk.Frame):
                             command=lambda: [controller.show_frame(PageTwo), controller.update_dict(controller.data_info, controller.entries_info)])
         button2.grid(row=0, column=1, sticky="e")
 
-
 class PageTwo(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -209,7 +310,7 @@ class PageTwo(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Anwendung starten",
-                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting)])
+                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.StartPositionTrack()])
         button2.grid(row=0, column=1)
         
 class PageThree(tk.Frame):
@@ -236,11 +337,8 @@ class PageThree(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.show_frame(PageFour)])#, controller.update_dict(controller.data_setting, controller.entries_setting)])
+                            command=lambda: [controller.show_frame(PageFour), controller.StopPositionTrack()])
         button2.grid(row=0, column=1)
-
-
-
 
 class PageFour(tk.Frame):
     #4te Seite des Gui, die der Darstellung der Informationen dienen soll
@@ -274,9 +372,6 @@ class PageFour(tk.Frame):
                             # command=lambda: controller.quit)
         button3.grid(row=0, column=2)
 
-class Tracking():
-    #Klasse in der alle Trackingfunktionen gespeichert werden
-    pass
 
 app = App()
 app.mainloop()
