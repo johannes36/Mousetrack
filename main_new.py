@@ -2,9 +2,17 @@ import tkinter as tk
 from tkinter import ttk
 
 import time as time
+from tokenize import Triple
 
 from pynput import mouse as mouse
 
+import numpy as np
+
+import matplotlib 
+import matplotlib.pyplot as plt
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.figure import Figure
 
 LARGE_FONT= ("Verdana", 12)
 
@@ -28,8 +36,11 @@ class App(tk.Tk):
             "setting_1": {"name" : "Geschwindigkeit",  "value" : tk.BooleanVar()},
             "setting_2": {"name" : "Beschleunigung",   "value" : tk.BooleanVar()},
             "setting_3": {"name" : "Speichern",        "value" : tk.BooleanVar()},
+            "setting_4": {"name" : "Heatmap",          "value" : tk.BooleanVar()}
         }
-        self.entries_setting = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
+        self.entries_setting = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
+
+        self.tracking = False
 
         #-----window geometry
         self.title("Mousetrack")
@@ -65,13 +76,23 @@ class App(tk.Tk):
 
         self.show_frame(StartPage)
 
-        #-------List to track behaviour
-        self.move_x   = []
-        self.move_y   = []
-        self.click_x  = [] 
-        self.click_y  = []
+        #-------Lists to track behaviour
+        #---make them private??
+        self.move_x      = []
+        self.move_y      = []
+        self.click_x     = [] 
+        self.click_y     = []
+        self.velo_x      = []
+        self.velo_y      = []
+        self.acc_x       = []  
+        self.acc_y       = []  
         self.time_move   = [] 
         self.time_click  = []
+        
+        
+        # self.heatmap_move = np.empty()
+        # self.heatmap_click = np.empty()
+
 
         self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
     
@@ -106,55 +127,88 @@ class App(tk.Tk):
     def StartPositionTrack(self):
         self.listener.start()
         self.starttime = time.time()
+        self.tracking = True
 
     def StopPositionTrack(self):
         self.listener.stop()
+        self.tracking = False
+
+        self.FinishDict()
+
+        self.velo_x, self.velo_y = self.CalculateDifferentation(self.move_x, self.move_y, self.time_move)
+        self.acc_x, self.acc_y   = self.CalculateDifferentation(self.velo_x, self.velo_y, self.time_move)
+
+        self.heatmap_move  = self.CalculateHeatmap(self.move_x, self.move_y)
+        self.heatmap_click = self.CalculateHeatmap(self.click_x, self.click_y)
+
+        # self.PlotHeatmap(self.heatmap_move, name="Heatmap Movement")
+        # self.PlotHeatmap(self.heatmap_click, name="Heatmap Clicks")
+
+        # print("Velo x:" + str(self.velo_x))
+        # print("Velo y:" + str(self.velo_y))
+        # print("Acc x:" + str(self.acc_x))
+        # print("Acc y:" + str(self.acc_y))
+        
+        # print(self.move_x)
+        # print(self.move_y)
+        # print(self.time_move)
+
 
         # Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
         # Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
-
-        # heatmove = CalculateHeatmap(move_x, move_y, name="Heatmap Movement")
-        # heatclick = CalculateHeatmap(click_x, click_y, name="Heatmap Clicks")
 
         #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
         # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
         # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
 
-        # move_velocity = CalculateVelocity(move_x, move_y, time_move)
-        #click_velocity = CalculateVelocity(click_x, click_y, time_click)
-        # CalculateVelocity(move_x, move_y, time_move)
+        # move_velocity = CalculateVelCalculateDifferentation(, move_y, time_move)
+        #click_velocity = CalculateVelCalculateDifferentation(x, click_y, time_click)
         # CalculateVelocity(click_x, click_y, time_click)
 
-    def CalculateVelocity(self, data_x, data_y, time_event): #acceleration = veränderung von v
-        # velo_x = np.empty(shape=(np.shape(data_x)))
-        # velo_y = np.empty(shape=(np.shape(data_y)))
-        pass
-        # for i in range(len(data_x)):
-        #     if i == 0:
-        #         velo_x[i] = 0
-        #         velo_y[i] = 0
-                
-        #     else:
-        #         velo_x[i] = (abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1])
-        #         velo_y[i] = (abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1])
+    def CalculateDifferentation(self, data_x, data_y, time_event): #acceleration = veränderung von v
+        diff_x = [] 
+        diff_y = []
+        
+        for i in range(len(data_x)):
 
-        # return velo_x, velo_y
+            if i == 0:
+                diff_x.append(0)
+                diff_y.append(0)
 
-    def CalculateHeatmap(self, x_Data, y_Data, name):
-        pass
-        # heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
-        # # print(type(heatmap))
-        # # print(np.shape(heatmap))
+            elif (time_event[i] - time_event[i-1]) == 0:
+                diff_x.append(diff_x[i-1])
+                diff_y.append(diff_y[i-1])
 
-        # for i in range(len(x_Data)):
-        #     heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
+            else:
+                diff_x.append((abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1]))
+                diff_y.append((abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1]))
 
-        # # print(np.max(np.max(heatmap)))
-        # # plt.imshow(heatmap) #, cmap='gray')
-        # # plt.title(name)
-        # # plt.show()
+        # print("Geschwindigkeit x:" + str(diff_x))
+        # print("Geschwindigkeit y:" + str(diff_y))
 
-        # return heatmap 
+        return diff_x, diff_y
+
+    def CalculateHeatmap(self, x_Data, y_Data):
+
+        heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
+        # print(len(x_Data))
+        # print(type(heatmap))
+        # print(np.shape(heatmap))
+
+        for i in range(len(x_Data)):
+            heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
+
+        # print(np.max(np.max(heatmap)))
+
+        return heatmap 
+
+    def FinishDict(self):
+        #write all data that wants to be saved to a dict
+        for key in self.data_setting:
+            if self.data_setting[key]["value"]:
+                pass
+
+            
 
     def Save2D_Data_with_Time(self, data_x, data_y, time, filename):
         #function to write data in csv file with timepoints
@@ -168,15 +222,17 @@ class App(tk.Tk):
         # else:
         #     file = open("demo.txt", "x")
 
-        with open(filename, "w") as file:
-            for pos in data_x, data_y, time:
-                file.writelines(str(pos) + '\n')
+        # with open(filename, "w") as file:
+        #     for pos in data_x, data_y, time:
+        #         file.writelines(str(pos) + '\n')
+        pass
 
     def Save_Heatmap(self, data, filename):
-        with open(filename, "w") as file:
-            for x, y in data:
-                file.writelines(str(x) + '\n')
-                file.writelines(str(y) + '\n')
+        # with open(filename, "w") as file:
+        #     for x, y in data:
+        #         file.writelines(str(x) + '\n')
+        #         file.writelines(str(y) + '\n')
+        pass
 
 
 class StartPage(tk.Frame):
@@ -357,8 +413,14 @@ class PageFour(tk.Frame):
         control.grid(row=2, column=0, sticky="nsew")
 
         #----------Header
-        ttk.Label(header, text="Seite 4: Auswertung", font=LARGE_FONT).grid()
+        ttk.Label(header, text="Seite 4: Auswertungsseite", font=LARGE_FONT).grid()
 
+        #---------Body
+        #über einen
+
+        # ttk.Button(body, text="Auswertung", command=lambda: self.visualizeData(controller)).grid()
+        ttk.Button(body, text="Auswertung", command=lambda: self.VisualizeData(controller)).grid()
+                        #controller.PlotHeatmap(controller.heatmap_move, name="Heatmap move")
         #----------control
         button1 = ttk.Button(control, text="zurück zur Startseite",
                             command=lambda: controller.show_frame(StartPage))
@@ -371,6 +433,61 @@ class PageFour(tk.Frame):
         button3 = ttk.Button(control, text="Anwendung schließen")#,
                             # command=lambda: controller.quit)
         button3.grid(row=0, column=2)
+
+
+    #function zur Darstellung der Heatmap
+    def VisualizeData(self, controller):
+        
+        while controller.tracking:
+            print("Tracking noch aktiv, Heatmap anzeigen nicht möglich")
+        
+        else:
+            print("Tra")
+            #setting 4 = heatmap, aktuell kalkulieren für KLick und Move, später für User frei wählbar??
+            if controller.data_setting["setting_4"]["value"]:                     #for key in controller.data_setting:  #    if controller.data_setting[key]["value"]
+                pass
+
+    
+    
+    def show_heatmap():
+        pass
+                    
+
+
+
+
+       
+
+
+
+        # self.data_setting = {
+        #     "setting_1": {"name" : "Geschwindigkeit",  "value" : tk.BooleanVar()},
+        #     "setting_2": {"name" : "Beschleunigung",   "value" : tk.BooleanVar()},
+        #     "setting_3": {"name" : "Speichern",        "value" : tk.BooleanVar()},
+        #     "setting_4": {"name" : "Heatmap",          "value" : tk.BooleanVar()}
+
+    def PlotHeatmap(self, heatmap, name):
+        pass
+
+        
+    #     figure_canvas = FigureCanvasTkAgg(figure, self)
+
+    #     NavigationToolbar2Tk(figure_canvas, self)
+
+    #     figure_canvas.get_tk_widget().grid()
+
+    #     plt.imshow(controller.heatmap_move, cmap='hot', interpolation='nearest')
+    #     plt.show()
+        
+    #     plt.imshow(heatmap, cmap='hot', interpolation='nearest')
+    #     plt.title(name)
+    #     plt.show()
+
+    #     figure = Figure(figsize=(5,5), dpi=100)
+        
+        # toolbar = NavigationToolbar2Tk(canvas, self)
+        # toolbar.update()
+        # figure_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  
 
 
 app = App()
