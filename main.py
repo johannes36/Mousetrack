@@ -93,7 +93,10 @@ def CalculateVelocity(data_x, data_y, time_event): #acceleration = veränderung 
         if i == 0:
             velo_x[i] = 0
             velo_y[i] = 0
-            
+        
+        elif (time_event[i] - time_event[i-1]) == 0:
+            print("gleuche ZEitpunkte!!!!!")
+        
         else:
             velo_x[i] = (abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1])
             velo_y[i] = (abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1])
