@@ -2,13 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 
 import time as time
-from tokenize import Triple
 
 from pynput import mouse as mouse
 
 import numpy as np
 
-import matplotlib 
+import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -39,6 +38,29 @@ class App(tk.Tk):
             "setting_4": {"name" : "Heatmap",          "value" : tk.BooleanVar()}
         }
         self.entries_setting = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
+        
+        #zum Anzeigen der spezifischen Heatmap 
+        self.data_visualize = {
+            "visualize_1": {"name" : "Positionsdaten",      "value" : tk.BooleanVar()},
+            "visualize_2": {"name" : "Geschwindigkeit",     "value" : tk.BooleanVar()},
+            "visualize_3": {"name" : "Beschleunigung",      "value" : tk.BooleanVar()},
+            "visualize_4": {"name" : "Flips (coming soon)", "value" : tk.BooleanVar()},              
+
+        }
+        self.entries_visualize = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
+        #besseren Namen finden
+
+
+        self.data_export = {
+            "export_1": {"name" : "Positionsdaten",            "value" : tk.BooleanVar()},
+            "export_2": {"name" : "Geschwindigkeitsdaten",     "value" : tk.BooleanVar()},
+            "export_3": {"name" : "Beschleunigungsdaten",      "value" : tk.BooleanVar()},
+            "export_4": {"name" : "Flips (coming soon)",       "value" : tk.BooleanVar()},              
+
+        }
+
+        self.entries_export = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
+
 
         self.tracking = False
 
@@ -68,7 +90,7 @@ class App(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour):
+        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive):
 
             frame = F(container, self)
             self.frames[F] = frame
@@ -101,12 +123,7 @@ class App(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
     
-    def update_dict(self, dict, entries):
 
-        for index, key in enumerate (dict):
-            dict[key]["value"] = entries[index].get()
-        print(dict)
-    
     def on_move(self, x, y):
 
         print('Maus bewegt zu {0}'.format((x, y)))
@@ -124,25 +141,25 @@ class App(tk.Tk):
             self.click_y.append(y)
             self.time_click.append(time.time()- self.starttime)
 
-    def StartPositionTrack(self):
+    def start_tracking(self):
         self.listener.start()
         self.starttime = time.time()
         self.tracking = True
 
-    def StopPositionTrack(self):
+    def stop_tracking(self):
         self.listener.stop()
         self.tracking = False
 
-        self.FinishDict()
+        self.finish_dict()
 
-        self.velo_x, self.velo_y = self.CalculateDifferentation(self.move_x, self.move_y, self.time_move)
-        self.acc_x, self.acc_y   = self.CalculateDifferentation(self.velo_x, self.velo_y, self.time_move)
+        self.velo_x, self.velo_y = self.calculate_differentation(self.move_x, self.move_y, self.time_move)
+        self.acc_x, self.acc_y   = self.calculate_differentation(self.velo_x, self.velo_y, self.time_move)
 
-        self.heatmap_move  = self.CalculateHeatmap(self.move_x, self.move_y)
-        self.heatmap_click = self.CalculateHeatmap(self.click_x, self.click_y)
+        self.heatmap_move  = self.calculate_heatmap(self.move_x, self.move_y)
+        self.heatmap_click = self.calculate_heatmap(self.click_x, self.click_y)
 
-        # self.PlotHeatmap(self.heatmap_move, name="Heatmap Movement")
-        # self.PlotHeatmap(self.heatmap_click, name="Heatmap Clicks")
+        # self.plot_heatmap(self.heatmap_move, name="Heatmap Movement")
+        # self.plot_heatmap(self.heatmap_click, name="Heatmap Clicks")
 
         # print("Velo x:" + str(self.velo_x))
         # print("Velo y:" + str(self.velo_y))
@@ -154,18 +171,25 @@ class App(tk.Tk):
         # print(self.time_move)
 
 
-        # Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
-        # Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
+        # save_2D_data_with_time(move_x, move_y, time_move, filename= "move.csv")
+        # save_2D_data_with_time(click_x, click_y, time_click, filename= "click.csv")
 
         #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
         # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
         # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
 
-        # move_velocity = CalculateVelCalculateDifferentation(, move_y, time_move)
-        #click_velocity = CalculateVelCalculateDifferentation(x, click_y, time_click)
+        # move_velocity = CalculateVelcalculate_differentation(, move_y, time_move)
+        #click_velocity = CalculateVelcalculate_differentation(x, click_y, time_click)
         # CalculateVelocity(click_x, click_y, time_click)
 
-    def CalculateDifferentation(self, data_x, data_y, time_event): #acceleration = veränderung von v
+
+    def update_dict(self, dict, entries):
+
+        for index, key in enumerate (dict):
+            dict[key]["value"] = entries[index].get()
+        print(dict)
+    
+    def calculate_differentation(self, data_x, data_y, time_event): #acceleration = veränderung von v
         diff_x = [] 
         diff_y = []
         
@@ -188,7 +212,7 @@ class App(tk.Tk):
 
         return diff_x, diff_y
 
-    def CalculateHeatmap(self, x_Data, y_Data):
+    def calculate_heatmap(self, x_Data, y_Data):
 
         heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
         # print(len(x_Data))
@@ -202,7 +226,9 @@ class App(tk.Tk):
 
         return heatmap 
 
-    def FinishDict(self):
+
+    
+    def finish_dict(self):
         #write all data that wants to be saved to a dict
         for key in self.data_setting:
             if self.data_setting[key]["value"]:
@@ -210,7 +236,7 @@ class App(tk.Tk):
 
             
 
-    def Save2D_Data_with_Time(self, data_x, data_y, time, filename):
+    def save_2D_data_with_time(self, data_x, data_y, time, filename):
         #function to write data in csv file with timepoints
         #data has 3 inputs, x, y and time 
         #daten und Klicks mit Zeitpunkten in File speichern
@@ -227,13 +253,12 @@ class App(tk.Tk):
         #         file.writelines(str(pos) + '\n')
         pass
 
-    def Save_Heatmap(self, data, filename):
+    def save_heatmap(self, data, filename):
         # with open(filename, "w") as file:
         #     for x, y in data:
         #         file.writelines(str(x) + '\n')
         #         file.writelines(str(y) + '\n')
         pass
-
 
 class StartPage(tk.Frame):
 
@@ -349,8 +374,8 @@ class PageTwo(tk.Frame):
         #----------Body
         ttk.Label(body, text="gewünschte Optionen auswählen:").grid(row=0, column=0)
         for index, key in enumerate(controller.data_setting):
-            print(controller.data_setting[key]["name"])
-            print(index)
+            # print(controller.data_setting[key]["name"])
+            # print(index)
             ttk.Checkbutton(body, text=controller.data_setting[key]["name"],
                             variable= controller.entries_setting[index],
                             onvalue=True, offvalue=False).grid(row=index+1, column=0, sticky="w")       #schöner: variable= controller.data_setting[key]["value"],
@@ -366,11 +391,11 @@ class PageTwo(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Anwendung starten",
-                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.StartPositionTrack()])
+                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.start_tracking()])
         button2.grid(row=0, column=1)
         
 class PageThree(tk.Frame):
-     #3te Seite, die das Livemenü darstellen soll
+    #3te Seite, die das Livemenü darstellen soll
     #evtl. simple Dinge live anzeigen
     #ansonsten einfach nur simple Optionen (Start oder Stopp)
     def __init__(self, parent, controller):
@@ -393,11 +418,59 @@ class PageThree(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.show_frame(PageFour), controller.StopPositionTrack()])
+                            command=lambda: [controller.show_frame(PageFour), controller.stop_tracking()])
         button2.grid(row=0, column=1)
 
 class PageFour(tk.Frame):
-    #4te Seite des Gui, die der Darstellung der Informationen dienen soll
+    def __init__(self, parent, controller):
+            tk.Frame.__init__(self, parent)
+            self.controller = controller
+            
+            header = ttk.Frame(self, relief="raised", borderwidth=5)
+            header.grid(row=0, column=0, sticky="nsew")
+
+            body = ttk.Frame(self, relief="sunken", borderwidth=5)
+            body.grid(row=1, column=0, sticky="nsew")
+            
+            control = ttk.Frame(self, relief="raised", borderwidth=5)
+            control.grid(row=2, column=0, sticky="nsew")
+
+            #----------Header
+            ttk.Label(header, text="Seite 4: Auswahlseite", font=LARGE_FONT).grid()
+
+            #------body
+            ttk.Label(body, text="Welche Inhalte sollen als Heatmap angezeigt werden?").grid(row=0, column=0)
+
+            for index, key in enumerate(controller.data_visualize):
+                ttk.Checkbutton(body, text=controller.data_visualize[key]["name"],
+                                variable= controller.entries_visualize[index],
+                                onvalue=True, offvalue=False).grid(row=index+1, column=0, sticky="w")
+
+            
+            ttk.Label(body, text="Welche Daten sollen als CSV-File exportiert werden?").grid(row=len(controller.entries_visualize)+1, column=0)
+        
+                    
+            for index, key in enumerate(controller.data_export):
+                ttk.Checkbutton(body, text=controller.data_export[key]["name"],
+                                variable= controller.entries_export[index],
+                                onvalue=True, offvalue=False).grid(row=index+len(controller.entries_visualize)+2, column=0, sticky="w")
+
+            
+            #-------Control
+            button1 = ttk.Button(control, text="zur nächsten Seite", command=lambda: [
+                                controller.show_frame(PageFive),
+                                controller.update_dict(controller.data_visualize, controller.entries_visualize), 
+                                controller.update_dict(controller.data_export, controller.entries_export)
+                                ])
+            button1.grid(row=0, column=0)
+
+
+
+
+
+class PageFive(tk.Frame):
+    #5te Seite des Gui, die der Darstellung der Informationen dienen soll
+    #Graph Page
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -413,17 +486,28 @@ class PageFour(tk.Frame):
         control.grid(row=2, column=0, sticky="nsew")
 
         #----------Header
-        ttk.Label(header, text="Seite 4: Auswertungsseite", font=LARGE_FONT).grid()
+        ttk.Label(header, text="Seite 5: Darstellung der Inhalte", font=LARGE_FONT).grid()
 
         #---------Body
-        #über einen
+        #---Heatmap über Funktion plotten
+        #---step 1, Standart Heatmap hinzufügen
+        #---step 2, Heatmap move hinzufügen
+        #---- step 3, Button hinzufügen, um Heatmap zu überschreiben
+        ##def update_plot
+        #---controller.show_plot?
+        #---später Auswahl, welche Parameter geplottet werden hinzufügen
+        #update mit config methode??
+       
+        ttk.Button(body, text="Zeige Heatmap der Mauspostion", command= lambda:
+                            self.show_heatmap(controller.heatmap_move, parent=body, name="Heatmap Mausposition")).grid(row=0, column=0)
+        ttk.Button(body, text="Zeige Heatmap der Mausklicks", command= lambda:
+                            self.show_heatmap(controller.heatmap_click, parent=body, name="Heatmap Klickposition")).grid(row=0, column=1)
 
-        # ttk.Button(body, text="Auswertung", command=lambda: self.visualizeData(controller)).grid()
-        ttk.Button(body, text="Auswertung", command=lambda: self.VisualizeData(controller)).grid()
-                        #controller.PlotHeatmap(controller.heatmap_move, name="Heatmap move")
-        #----------control
+
+
+                #----------control
         button1 = ttk.Button(control, text="zurück zur Startseite",
-                            command=lambda: controller.show_frame(StartPage))
+                            command=lambda: controller.show_frame(StartPage)) #commmand für neuen Thread, Datenspeicherung, neuer Datensatz (----> Programmende!!)
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="nächstes Diagramm")#,
@@ -435,59 +519,30 @@ class PageFour(tk.Frame):
         button3.grid(row=0, column=2)
 
 
-    #function zur Darstellung der Heatmap
-    def VisualizeData(self, controller):
-        
-        while controller.tracking:
-            print("Tracking noch aktiv, Heatmap anzeigen nicht möglich")
-        
-        else:
-            print("Tra")
-            #setting 4 = heatmap, aktuell kalkulieren für KLick und Move, später für User frei wählbar??
-            if controller.data_setting["setting_4"]["value"]:                     #for key in controller.data_setting:  #    if controller.data_setting[key]["value"]
-                pass
+    def show_heatmap(self, heatmap, parent,  name):
+        #vorherige figure zerstören
+        # canvas.winfo_children()[0].destroy()        
+        fig = plt.Figure(figsize=(5, 4), dpi=100)
 
-    
-    
-    def show_heatmap():
-        pass
-                    
+        plt.title(name)
+        # t = np.arange(0, 3, .01)
+        # ax = fig.add_subplot()
+        # line = ax.plot(t, 2 * np.sin(2 * np.pi * t))
+        # ax.set_xlabel("time [s]")
+        # ax.set_ylabel("f(t)")
 
-
-
-
-       
-
-
-
-        # self.data_setting = {
-        #     "setting_1": {"name" : "Geschwindigkeit",  "value" : tk.BooleanVar()},
-        #     "setting_2": {"name" : "Beschleunigung",   "value" : tk.BooleanVar()},
-        #     "setting_3": {"name" : "Speichern",        "value" : tk.BooleanVar()},
-        #     "setting_4": {"name" : "Heatmap",          "value" : tk.BooleanVar()}
-
-    def PlotHeatmap(self, heatmap, name):
-        pass
+        plt.imshow(heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
+        plt.show()
 
         
-    #     figure_canvas = FigureCanvasTkAgg(figure, self)
+        canvas = FigureCanvasTkAgg(fig, parent)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().grid()
 
-    #     NavigationToolbar2Tk(figure_canvas, self)
-
-    #     figure_canvas.get_tk_widget().grid()
-
-    #     plt.imshow(controller.heatmap_move, cmap='hot', interpolation='nearest')
-    #     plt.show()
+        toolbar = NavigationToolbar2Tk(canvas, parent, pack_toolbar=False)
+        toolbar.update()
         
-    #     plt.imshow(heatmap, cmap='hot', interpolation='nearest')
-    #     plt.title(name)
-    #     plt.show()
-
-    #     figure = Figure(figsize=(5,5), dpi=100)
-        
-        # toolbar = NavigationToolbar2Tk(canvas, self)
-        # toolbar.update()
-        # figure_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  
+        toolbar.grid()
 
 
 app = App()
