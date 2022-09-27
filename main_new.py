@@ -62,7 +62,7 @@ class App(tk.Tk):
         self.entries_export = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
 
 
-        self.tracking = False
+        # self.tracking = False
 
         #-----window geometry
         self.title("Mousetrack")
@@ -144,16 +144,16 @@ class App(tk.Tk):
     def start_tracking(self):
         self.listener.start()
         self.starttime = time.time()
-        self.tracking = True
+        # self.tracking = True
 
     def stop_tracking(self):
         self.listener.stop()
-        self.tracking = False
+        # self.tracking = False
 
         self.finish_dict()
 
-        self.velo_x, self.velo_y = self.calculate_differentation(self.move_x, self.move_y, self.time_move)
-        self.acc_x, self.acc_y   = self.calculate_differentation(self.velo_x, self.velo_y, self.time_move)
+        self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
+        self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
 
         self.heatmap_move  = self.calculate_heatmap(self.move_x, self.move_y)
         self.heatmap_click = self.calculate_heatmap(self.click_x, self.click_y)
@@ -178,8 +178,8 @@ class App(tk.Tk):
         # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
         # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
 
-        # move_velocity = CalculateVelcalculate_differentation(, move_y, time_move)
-        #click_velocity = CalculateVelcalculate_differentation(x, click_y, time_click)
+        # move_velocity = CalculateVeli(, move_y, time_move)
+        #click_velocity = CalculateVeli(x, click_y, time_click)
         # CalculateVelocity(click_x, click_y, time_click)
 
 
@@ -189,7 +189,7 @@ class App(tk.Tk):
             dict[key]["value"] = entries[index].get()
         print(dict)
     
-    def calculate_differentation(self, data_x, data_y, time_event): #acceleration = veränderung von v
+    def calculate_differentiation(self, data_x, data_y, time_event): #acceleration = veränderung von v
         diff_x = [] 
         diff_y = []
         
