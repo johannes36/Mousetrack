@@ -13,6 +13,9 @@ matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 
+import csv
+import os
+
 LARGE_FONT= ("Verdana", 12)
 
 
@@ -260,6 +263,12 @@ class App(tk.Tk):
         #         file.writelines(str(y) + '\n')
         pass
 
+    # def writeCSVFile(filenamePath, lines, delimiter=','):
+    #     with open(os.path.expanduser(filenamePath), 'w', newline='') as csvfile:
+    #         writer = csv.writer(csvfile, delimiter=delimiter)
+    #         for line in lines:
+    #             writer.writerow(line)
+
 class StartPage(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -493,6 +502,18 @@ class PageFive(tk.Frame):
         #---step 1, Standart Heatmap hinzufügen
         #---step 2, Heatmap move hinzufügen
         #---- step 3, Button hinzufügen, um Heatmap zu überschreiben
+
+        fig = Figure(figsize=(5, 4), dpi=100)
+        t = np.arange(0, 3, .01)
+        ax = fig.add_subplot()
+        line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
+        ax.set_xlabel("time [s]")
+        ax.set_ylabel("f(t)")
+
+        canvas = FigureCanvasTkAgg(fig, master=body)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().grid()
+
         ##def update_plot
         #---controller.show_plot?
         #---später Auswahl, welche Parameter geplottet werden hinzufügen
@@ -519,11 +540,13 @@ class PageFive(tk.Frame):
         button3.grid(row=0, column=2)
 
 
-    def show_heatmap(self, heatmap, parent,  name):
+    def show_heatmap(self, heatmap, parent, name):
         #vorherige figure zerstören
         # canvas.winfo_children()[0].destroy()        
         fig = plt.Figure(figsize=(5, 4), dpi=100)
 
+        # a = fig.add_subplot(111)
+        
         plt.title(name)
         # t = np.arange(0, 3, .01)
         # ax = fig.add_subplot()
@@ -531,17 +554,26 @@ class PageFive(tk.Frame):
         # ax.set_xlabel("time [s]")
         # ax.set_ylabel("f(t)")
 
+        X = len(heatmap[0,:]) #Anzahl der Spalten
+        Y = len(heatmap[:,0]) #Anzahl der Zeilen
+        print("X:" + str(X))
+        print("Y:" + str(Y))
+        print("Shape of Array" + str(np.shape(heatmap)))
+
+        
+        #für diese Stelle schönere Option finden
         plt.imshow(heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
         plt.show()
 
-        
+
         canvas = FigureCanvasTkAgg(fig, parent)  # A tk.DrawingArea.
         canvas.draw()
-        canvas.get_tk_widget().grid()
 
         toolbar = NavigationToolbar2Tk(canvas, parent, pack_toolbar=False)
         toolbar.update()
         
+        canvas.get_tk_widget().grid()
+
         toolbar.grid()
 
 
