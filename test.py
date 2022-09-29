@@ -1,43 +1,62 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter.messagebox import showinfo
-from calendar import month_name
+from tkinter import *
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+NavigationToolbar2Tk)
 
-root = tk.Tk()
+# plot function is created for
+# plotting the graph in
+# tkinter window
+def plot():
 
-# config the root window
-root.geometry('300x200')
-root.resizable(False, False)
-root.title('Combobox Widget')
+	# the figure that will contain the plot
+	fig = Figure(figsize = (5, 5),
+				dpi = 100)
 
-# label
-label = ttk.Label(text="Please select a month:")
-label.pack(fill=tk.X, padx=5, pady=5)
+	# list of squares
+	y = [i**2 for i in range(101)]
 
-# create a combobox
-selected_month = tk.StringVar()
-month_cb = ttk.Combobox(root, textvariable=selected_month)
+	# adding the subplot
+	plot1 = fig.add_subplot(111)
 
-# get first 3 letters of every month name
-month_cb['values'] = [month_name[m][0:3] for m in range(1, 13)]
+	# plotting the graph
+	plot1.plot(y)
 
-print(month_name[:])
+	# creating the Tkinter canvas
+	# containing the Matplotlib figure
+	canvas = FigureCanvasTkAgg(fig,
+							master = window)
+	canvas.draw()
 
-# prevent typing a value
-month_cb['state'] = 'readonly'
+	# placing the canvas on the Tkinter window
+	canvas.get_tk_widget().pack()
 
-# place the widget
-month_cb.pack(fill=tk.X, padx=5, pady=5)
+	# creating the Matplotlib toolbar
+	toolbar = NavigationToolbar2Tk(canvas,
+								window)
+	toolbar.update()
 
+	# placing the toolbar on the Tkinter window
+	canvas.get_tk_widget().pack()
 
-# bind the selected value changes
-def month_changed(event):
-    """ handle the month changed event """
-    showinfo(
-        title='Result',
-        message=f'You selected {selected_month.get()}!'
-    )
+# the main Tkinter window
+window = Tk()
 
-month_cb.bind('<<ComboboxSelected>>', month_changed)
+# setting the title
+window.title('Plotting in Tkinter')
 
-root.mainloop()
+# dimensions of the main window
+window.geometry("500x500")
+
+# button that displays the plot
+plot_button = Button(master = window,
+					command = plot,
+					height = 2,
+					width = 10,
+					text = "Plot")
+
+# place the button
+# in main window
+plot_button.pack()
+
+# run the gui
+window.mainloop()
