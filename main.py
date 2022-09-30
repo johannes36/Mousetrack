@@ -7,11 +7,13 @@ from pynput import mouse as mouse
 
 import numpy as np
 
-import matplotlib
+import matplotlib as mpl
+mpl.use("TkAgg")
 import matplotlib.pyplot as plt
-matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
+from matplotlib import cm
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 import csv
 import os
@@ -503,26 +505,25 @@ class PageFive(tk.Frame):
         #---step 2, Heatmap move hinzufügen
         #---- step 3, Button hinzufügen, um Heatmap zu überschreiben
 
+        canvas_parent = tk.Canvas(body).grid(row=0, column=0, columnspan=2)#, width=500, height=500)
+
         fig = Figure(figsize=(5, 4), dpi=100)
-        t = np.arange(0, 3, .01)
-        ax = fig.add_subplot()
-        line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
-        ax.set_xlabel("time [s]")
-        ax.set_ylabel("f(t)")
+        # t = np.arange(0, 3, .01)
+        # ax = fig.add_subplot()
+        # line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
+        # ax.set_xlabel("time [s]")
+        # ax.set_ylabel("f(t)")
 
-        canvas = FigureCanvasTkAgg(fig, master=body)  # A tk.DrawingArea.
-        canvas.draw()
-        canvas.get_tk_widget().grid()
+        figure_canvas  = FigureCanvasTkAgg(fig, master=body)#canvas_parent)  # A tk.DrawingArea.
+        
+        figure_canvas.draw()
+        figure_canvas.get_tk_widget().grid(row=0, column=0)
 
-        ##def update_plot
-        #---controller.show_plot?
-        #---später Auswahl, welche Parameter geplottet werden hinzufügen
-        #update mit config methode??
        
         ttk.Button(body, text="Zeige Heatmap der Mauspostion", command= lambda:
-                            self.show_heatmap(controller.heatmap_move, parent=body, name="Heatmap Mausposition")).grid(row=0, column=0)
+                            self.show_heatmap(controller.heatmap_move, parent=canvas_parent, name="Heatmap Mausposition", figure=fig)).grid(row=1, column=0)
         ttk.Button(body, text="Zeige Heatmap der Mausklicks", command= lambda:
-                            self.show_heatmap(controller.heatmap_click, parent=body, name="Heatmap Klickposition")).grid(row=0, column=1)
+                            self.show_heatmap(controller.heatmap_click, parent=canvas_parent, name="Heatmap Klickposition")).grid(row=1, column=1)
 
 
 
@@ -540,40 +541,59 @@ class PageFive(tk.Frame):
         button3.grid(row=0, column=2)
 
 
-    def show_heatmap(self, heatmap, parent, name):
-        #vorherige figure zerstören
-        # canvas.winfo_children()[0].destroy()        
-        fig = plt.Figure(figsize=(5, 4), dpi=100)
+    # def clear_plot(self, canvas, parent):         
+    #     if canvas:
+    #         canvas.get_tk_widget().destroy()
+    #         # canvas.winfo_children()[0].destroy()
+    #         # for child in parent.winfo_children():
+    #         #     child.destroy()
+            
 
-        # a = fig.add_subplot(111)
+    def show_heatmap(self, heatmap, parent, name, figure):
+        try:
+           parent.get_tk_widget().destroy()
+        except AttributeError:
+            print("nothing deleted")
+        # fig, ax = plt.Figure(figsize=(5, 4), dpi=100)
+
+        # cmap = mpl.cm.cool
+        # norm = mpl.colors.Normalize(vmin=5, vmax=10)
+
+        # fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
+        #      cax=ax, orientation='horizontal', label='Some Units')
+        
+        # fig = Figure(figsize=(5, 4), dpi=100)
+        t = np.arange(0, 3, .01)
+        ax = figure.add_subplot()
+        line, = ax.plot(t, 2 * t)
+        ax.set_xlabel("time [s]")
+        ax.set_ylabel("f(t)")
+
+        # cmap = ListedColormap(["darkorange", "gold", "lawngreen", "lightseagreen"])
+        # n = len([cmap])
+
+        # fig = Figure(figsize = (5, 5),
+        #          dpi = 100)
+  
+        # fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
+        #                     constrained_layout=True, squeeze=False)
+        # for [ax, cmap] in zip(axs.flat, [cmap]):
+        #     psm = ax.pcolormesh(heatmap, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
+        #     fig.colorbar(psm, ax=ax)
+
+        #für diese Stelle schönere Option finden
+        # plt.imshow(heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
         
         plt.title(name)
-        # t = np.arange(0, 3, .01)
-        # ax = fig.add_subplot()
-        # line = ax.plot(t, 2 * np.sin(2 * np.pi * t))
-        # ax.set_xlabel("time [s]")
-        # ax.set_ylabel("f(t)")
-
-        X = len(heatmap[0,:]) #Anzahl der Spalten
-        Y = len(heatmap[:,0]) #Anzahl der Zeilen
-        print("X:" + str(X))
-        print("Y:" + str(Y))
-        print("Shape of Array" + str(np.shape(heatmap)))
-
-        
-        #für diese Stelle schönere Option finden
-        plt.imshow(heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
-        plt.show()
 
 
-        canvas = FigureCanvasTkAgg(fig, parent)  # A tk.DrawingArea.
+        canvas = FigureCanvasTkAgg(figure, parent)  # A tk.DrawingArea.
         canvas.draw()
 
         toolbar = NavigationToolbar2Tk(canvas, parent, pack_toolbar=False)
         toolbar.update()
         
         canvas.get_tk_widget().grid()
-
         toolbar.grid()
 
 
