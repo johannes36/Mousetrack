@@ -15,8 +15,10 @@ from matplotlib.figure import Figure
 from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
-import csv
-import os
+import seaborn as sns
+
+import csv as csv
+import os as os
 
 LARGE_FONT= ("Verdana", 12)
 
@@ -86,6 +88,20 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         
+        #-------Lists to track behaviour
+        #---make them private??
+        self.move_x      = []
+        self.move_y      = []
+        self.click_x     = [] 
+        self.click_y     = []
+        self.velo_x      = []
+        self.velo_y      = []
+        self.acc_x       = []  
+        self.acc_y       = []  
+        self.time_move   = [] 
+        self.time_click  = []
+        self.random_heatmap = np.random.randint(low=0, high=200, size=(200, 250))        
+        
 
         #---container, evtl. header, ... hier hinzufügen
         container = tk.Frame(self, borderwidth=10, relief="sunken")
@@ -103,25 +119,14 @@ class App(tk.Tk):
 
         self.show_frame(StartPage)
 
-        #-------Lists to track behaviour
-        #---make them private??
-        self.move_x      = []
-        self.move_y      = []
-        self.click_x     = [] 
-        self.click_y     = []
-        self.velo_x      = []
-        self.velo_y      = []
-        self.acc_x       = []  
-        self.acc_y       = []  
-        self.time_move   = [] 
-        self.time_click  = []
-        
+
         
         # self.heatmap_move = np.empty()
         # self.heatmap_click = np.empty()
 
 
         self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
+        self.mainloop()
     
     def show_frame(self, cont):
 
@@ -157,6 +162,7 @@ class App(tk.Tk):
 
         self.finish_dict()
 
+        #Berechnungen weiter unten ausführen, z.b Klasse 5????    
         self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
         self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
 
@@ -246,7 +252,7 @@ class App(tk.Tk):
         #data has 3 inputs, x, y and time 
         #daten und Klicks mit Zeitpunkten in File speichern
 
-            # if os.path.exists("demo.txt"):
+        # if os.path.exists("demo.txt"):
         #     #kreiere eine neue Datei, mit anderer Endung
         #     os.remove("demo.txt")
         #     file = open("demo.txt", "w")
@@ -257,6 +263,13 @@ class App(tk.Tk):
         #     for pos in data_x, data_y, time:
         #         file.writelines(str(pos) + '\n')
         pass
+
+    def writeCSVFile(self, filenamePath, lines, delimiter=','):
+        with open(os.path.expanduser(filenamePath), 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=delimiter)
+            for line in lines:
+                writer.writerow(line)
+
 
     def save_heatmap(self, data, filename):
         # with open(filename, "w") as file:
@@ -270,6 +283,8 @@ class App(tk.Tk):
     #         writer = csv.writer(csvfile, delimiter=delimiter)
     #         for line in lines:
     #             writer.writerow(line)
+    def finishApp(self):
+        self.quit()
 
 class StartPage(tk.Frame):
 
@@ -475,10 +490,6 @@ class PageFour(tk.Frame):
                                 ])
             button1.grid(row=0, column=0)
 
-
-
-
-
 class PageFive(tk.Frame):
     #5te Seite des Gui, die der Darstellung der Informationen dienen soll
     #Graph Page
@@ -499,31 +510,30 @@ class PageFive(tk.Frame):
         #----------Header
         ttk.Label(header, text="Seite 5: Darstellung der Inhalte", font=LARGE_FONT).grid()
 
-        #---------Body
-        #---Heatmap über Funktion plotten
-        #---step 1, Standart Heatmap hinzufügen
-        #---step 2, Heatmap move hinzufügen
-        #---- step 3, Button hinzufügen, um Heatmap zu überschreiben
-
-        canvas_parent = tk.Canvas(body).grid(row=0, column=0, columnspan=2)#, width=500, height=500)
-
-        fig = Figure(figsize=(5, 4), dpi=100)
-        # t = np.arange(0, 3, .01)
-        # ax = fig.add_subplot()
-        # line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
-        # ax.set_xlabel("time [s]")
-        # ax.set_ylabel("f(t)")
-
-        figure_canvas  = FigureCanvasTkAgg(fig, master=body)#canvas_parent)  # A tk.DrawingArea.
+        #-------PLOTTING AREA-------------------
+        #creating a figure
+        fig = plt.figure()
+        #adding an axes object
+        ax = fig.add_subplot() 
+        ax.set_title("Heatmap aus Zufallszahlen")
+        #plotting der Heatmap
+        ax.imshow(controller.random_heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
         
-        figure_canvas.draw()
-        figure_canvas.get_tk_widget().grid(row=0, column=0)
-
+        #-------TKINTER AREA ---------creating a Tkinter canvas
+        canvas = FigureCanvasTkAgg(fig, master=body)
+        canvas.draw()
+        #canvas in body platzieren
+        canvas.get_tk_widget().pack()
+        # creating the Matplotlib toolbar
+        toolbar = NavigationToolbar2Tk(canvas, body)
+        toolbar.update()            
+        # placing the toolbar on the Tkinter window
+        canvas.get_tk_widget().pack
        
-        ttk.Button(body, text="Zeige Heatmap der Mauspostion", command= lambda:
-                            self.show_heatmap(controller.heatmap_move, parent=canvas_parent, name="Heatmap Mausposition", figure=fig)).grid(row=1, column=0)
-        ttk.Button(body, text="Zeige Heatmap der Mausklicks", command= lambda:
-                            self.show_heatmap(controller.heatmap_click, parent=canvas_parent, name="Heatmap Klickposition")).grid(row=1, column=1)
+        # ttk.Button(body, text="Zeige Heatmap der Mauspostion", command= lambda:
+        #                     self.show_heatmap(controller.heatmap_move, parent=canvas_parent, name="Heatmap Mausposition", figure=fig)).grid(row=1, column=0)
+        # ttk.Button(body, text="Zeige Heatmap der Mausklicks", command= lambda:
+        #                     self.show_heatmap(controller.heatmap_click, parent=canvas_parent, name="Heatmap Klickposition")).grid(row=1, column=1)
 
 
 
@@ -532,12 +542,12 @@ class PageFive(tk.Frame):
                             command=lambda: controller.show_frame(StartPage)) #commmand für neuen Thread, Datenspeicherung, neuer Datensatz (----> Programmende!!)
         button1.grid(row=0, column=0)
 
-        button2 = ttk.Button(control, text="nächstes Diagramm")#,
-                            #command=lambda: [controller.show_frame(StartPage)])
+        button2 = ttk.Button(control, text="nächstes Diagramm",
+                            command=lambda: self.showHeatmap(axes=ax, parent_canvas=canvas, map=controller.heatmap_move, title="Heatmap Moves"))
         button2.grid(row=0, column=1)
         
-        button3 = ttk.Button(control, text="Anwendung schließen")#,
-                            # command=lambda: controller.quit)
+        button3 = ttk.Button(control, text="Anwendung schließen",
+                            command=lambda: [controller.finishApp()])#, controller.writeCSVFile()])
         button3.grid(row=0, column=2)
 
 
@@ -549,53 +559,11 @@ class PageFive(tk.Frame):
     #         #     child.destroy()
             
 
-    def show_heatmap(self, heatmap, parent, name, figure):
-        try:
-           parent.get_tk_widget().destroy()
-        except AttributeError:
-            print("nothing deleted")
-        # fig, ax = plt.Figure(figsize=(5, 4), dpi=100)
-
-        # cmap = mpl.cm.cool
-        # norm = mpl.colors.Normalize(vmin=5, vmax=10)
-
-        # fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
-        #      cax=ax, orientation='horizontal', label='Some Units')
-        
-        # fig = Figure(figsize=(5, 4), dpi=100)
-        t = np.arange(0, 3, .01)
-        ax = figure.add_subplot()
-        line, = ax.plot(t, 2 * t)
-        ax.set_xlabel("time [s]")
-        ax.set_ylabel("f(t)")
-
-        # cmap = ListedColormap(["darkorange", "gold", "lawngreen", "lightseagreen"])
-        # n = len([cmap])
-
-        # fig = Figure(figsize = (5, 5),
-        #          dpi = 100)
-  
-        # fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
-        #                     constrained_layout=True, squeeze=False)
-        # for [ax, cmap] in zip(axs.flat, [cmap]):
-        #     psm = ax.pcolormesh(heatmap, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
-        #     fig.colorbar(psm, ax=ax)
-
-        #für diese Stelle schönere Option finden
-        # plt.imshow(heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
-        
-        plt.title(name)
-
-
-        canvas = FigureCanvasTkAgg(figure, parent)  # A tk.DrawingArea.
-        canvas.draw()
-
-        toolbar = NavigationToolbar2Tk(canvas, parent, pack_toolbar=False)
-        toolbar.update()
-        
-        canvas.get_tk_widget().grid()
-        toolbar.grid()
-
+    def showHeatmap(self, axes, parent_canvas, map, title):
+        axes.clear()
+        axes.set_title(title)
+        axes.imshow(map, cmap='hot', interpolation='nearest')
+        parent_canvas.draw()
+        parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
 app = App()
-app.mainloop()
