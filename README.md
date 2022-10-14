@@ -30,3 +30,16 @@ Version 1.0.4
 Version 1.0.5
     Velocity is calculated
     1. in direction x and y
+
+Version 1.0.6
+    die zuvor hinzugefügten Features werden in ein GUI eingefügt
+        1. Seite 1 zur Informationsabfrage
+        2. Seite 2 zum Vornehmen von Einstellungen und Starten der Anwendung
+        3. Seite 3
+        4. Seite 4
+
+
+                # Zukunft: 
+                3. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
+                Es gibt nun die Möglickeit genau auszuwählen, was mit den Daten im Nachhinein geschieht
+                # 3. Live Seite während des Trackings mit Timer und Stop
