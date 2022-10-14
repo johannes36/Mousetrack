@@ -4,7 +4,7 @@ from pynput import mouse
 # import os
 # import csv
 #from threading import Thread
-import time
+import time     
 import numpy as np
 import seaborn 
 import matplotlib.pyplot as plt
@@ -21,10 +21,11 @@ click_y  = []
 time_move   = [] #Liste der Zeitpunkte der Bewegungen
 time_click  = [] #Liste der Zeitpunkte der Klicks
 
+print('START')
 # The callback to call when mouse move events occur
 def on_move(x, y):
 
-    print('Maus bewegt zu {0}'.format((x, y)))
+    #print('Maus bewegt zu {0}'.format((x, y)))
     # Daten in Liste abspeichern
     move_x.append(x)
     move_y.append(y)
@@ -66,34 +67,36 @@ def StopPositionTrack():
     Save2D_Data_with_Time(move_x, move_y, time_move, filename= "move.csv")
     Save2D_Data_with_Time(click_x, click_y, time_click, filename= "click.csv")
 
-    heatmove = Calculate_Heatmap(move_x, move_y, name="Heatmap Movement")
-    # heatclick = Calculate_Heatmap(click_x, click_y, name="Heatmap Clicks")
+    heatmove = CalculateHeatmap(move_x, move_y, name="Heatmap Movement")
+    # heatclick = CalculateHeatmap(click_x, click_y, name="Heatmap Clicks")
 
     #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
     pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
     # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
 
+    CalculateVelocity()
 
-    #Save_Heatmap(heatmove, filename="heatmap_move.csv")
-    #Save_Heatmap(heatclick, filename="heatmap_click.csv")
+def CalculateVelocity():
+    print('Velocity calculated')
 
-def Calculate_Heatmap(x_Data, y_Data, name):
+def CalculateAcceleration():
+    pass
 
-    heatmap = np.zeros(shape=(max(x_Data),max(y_Data)))
+def CalculateHeatmap(x_Data, y_Data, name):
+
+    heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
     print(type(heatmap))
     print(np.shape(heatmap))
 
-    for x in x_Data:
-        for y in y_Data:
-            heatmap[x-1, y-1] = heatmap[x-1, y-1] + 1
+    for i in range(len(x_Data)):
+        heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
 
-
-    plt.imshow(heatmap, cmap='gray')
+    print(np.max(np.max(heatmap)))
+    plt.imshow(heatmap) #, cmap='gray')
     plt.title(name)
     plt.show()
 
-    return heatmap
-    
+    return heatmap 
 
 def Save2D_Data_with_Time(data_x, data_y, time, filename):
     #function to write data in csv file with timepoints
@@ -117,8 +120,6 @@ def Save_Heatmap(data, filename):
             file.writelines(str(x) + '\n')
             file.writelines(str(y) + '\n')
 
-
-# def Save    
 
 
 app = tk.Tk()
