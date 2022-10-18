@@ -11,11 +11,11 @@ import matplotlib as mpl
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.figure import Figure
-from matplotlib import cm
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+# from matplotlib.figure import Figure
+# from matplotlib import cm
+# from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
-import seaborn as sns
+# import seaborn as sns
 
 import csv as csv
 import os as os
@@ -29,6 +29,8 @@ class App(tk.Tk):
         
         tk.Tk.__init__(self, *args, **kwargs)
 
+
+        #-----------SETTING VARIABLEN
         self.data_info = {
             "info_1":    {"name" : "Name Datensatz:",   "value" : tk.StringVar()},
             "info_2":    {"name" : "Starke Hand:",      "value" : tk.StringVar()},
@@ -69,8 +71,6 @@ class App(tk.Tk):
         self.entries_export = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
 
 
-        # self.tracking = False
-
         #-----window geometry
         self.title("Mousetrack")
                 
@@ -88,6 +88,7 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         
+        #--------------BEHAVIOUR VARIRABLEN
         #-------Lists to track behaviour
         #---make them private??
         self.move_x      = []
@@ -102,6 +103,9 @@ class App(tk.Tk):
         self.time_click  = []
         self.random_heatmap = np.random.randint(low=0, high=200, size=(200, 250))        
         
+        #---------PROGRAMLOGIC VARIABLEN
+        self.numberofruns = 1
+        self.listener_list = []
 
         #---container, evtl. header, ... hier hinzufügen
         container = tk.Frame(self, borderwidth=10, relief="sunken")
@@ -125,7 +129,6 @@ class App(tk.Tk):
         # self.heatmap_click = np.empty()
 
 
-        self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
         self.mainloop()
     
     def show_frame(self, cont):
@@ -151,8 +154,50 @@ class App(tk.Tk):
             self.click_y.append(y)
             self.time_click.append(time.time()- self.starttime)
 
+
+    def tracking(self, active):
+        
+        if active:
+            #create new listener für neuen Durchlauf
+            #name of listener
+            # self.listener_list.append("listener" + str(self.numberofruns))
+            # print(self.listener_list[-1])
+            self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
+            self.listener.start()
+            self.starttime = time.time()
+
+            print("started")
+
+        else:
+            print("stopped")
+            self.listener.stop()
+            # self.tracking = False
+            self.numberofruns += 1
+            print(self.numberofruns)
+            self.finish_dict()
+
+            #Berechnungen weiter unten ausführen, z.b Klasse 5????    
+            self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
+            self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
+
+            self.heatmap_move  = self.calculate_heatmap(self.move_x, self.move_y)
+            self.heatmap_click = self.calculate_heatmap(self.click_x, self.click_y)
+
+
     def start_tracking(self):
+        #create listener instance = creating a thread
+        #create a thread when function is called 
+        #create a new thread, when function is called a 2,3,4,... time
+        #need counter, to count number of calls 
+        # count =+ 1
+        # listener_name = ""
+        # listener_list = ()
+        # self.
+        # listener_list.append() 
+        # if listener[-1] == None:
+        self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
         self.listener.start()
+        
         self.starttime = time.time()
         # self.tracking = True
 
@@ -417,7 +462,7 @@ class PageTwo(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Anwendung starten",
-                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.start_tracking()])
+                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.tracking(active=True)])
         button2.grid(row=0, column=1)
         
 class PageThree(tk.Frame):
@@ -444,7 +489,7 @@ class PageThree(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.show_frame(PageFour), controller.stop_tracking()])
+                            command=lambda: [controller.show_frame(PageFour), controller.tracking(active=False)])
         button2.grid(row=0, column=1)
 
 class PageFour(tk.Frame):
@@ -517,7 +562,7 @@ class PageFive(tk.Frame):
         ax = fig.add_subplot() 
         ax.set_title("Heatmap aus Zufallszahlen")
         #plotting der Heatmap
-        ax.imshow(controller.random_heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
+        ax.imshow(controller.random_heatmap, cmap='gray', interpolation='nearest') #, cmap='gray') hot
         
         #-------TKINTER AREA ---------creating a Tkinter canvas
         canvas = FigureCanvasTkAgg(fig, master=body)
