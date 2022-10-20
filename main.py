@@ -2,20 +2,22 @@ import tkinter as tk
 from tkinter import ttk
 
 import time as time
+from unicodedata import name
 
 from pynput import mouse as mouse
 
 import numpy as np
 
 import matplotlib as mpl
+
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.figure import Figure
-from matplotlib import cm
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+# from matplotlib.figure import Figure
+# from matplotlib import cm
+# from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
-import seaborn as sns
+# import seaborn as sns
 
 import csv as csv
 import os as os
@@ -29,6 +31,8 @@ class App(tk.Tk):
         
         tk.Tk.__init__(self, *args, **kwargs)
 
+
+        #-----------SETTING VARIABLEN
         self.data_info = {
             "info_1":    {"name" : "Name Datensatz:",   "value" : tk.StringVar()},
             "info_2":    {"name" : "Starke Hand:",      "value" : tk.StringVar()},
@@ -59,7 +63,7 @@ class App(tk.Tk):
 
 
         self.data_export = {
-            "export_1": {"name" : "Positionsdaten",            "value" : tk.BooleanVar()},
+            "export_1": {"name" : "Positionsdaten",            "value" : tk.BooleanVar()},# "data" : self.move},
             "export_2": {"name" : "Geschwindigkeitsdaten",     "value" : tk.BooleanVar()},
             "export_3": {"name" : "Beschleunigungsdaten",      "value" : tk.BooleanVar()},
             "export_4": {"name" : "Flips (coming soon)",       "value" : tk.BooleanVar()},              
@@ -68,8 +72,13 @@ class App(tk.Tk):
 
         self.entries_export = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
 
-
-        # self.tracking = False
+        self.map_dict = {
+            "map_1": {"title" : "Standartheatmap",        "value" : np.empty},
+            "map_2": {"title" : "Heatmap Mausposition",   "value" : np.empty},
+            "map_3": {"title" : "Heatmap Klickposition",  "value" : np.empty},
+            "map_4": {"title" : "Heatmap Geschwindigkeit","value" : np.empty},
+            "map_5": {"title" : "Heatmap Beschleunigung", "value" : np.empty},
+        }
 
         #-----window geometry
         self.title("Mousetrack")
@@ -88,10 +97,12 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         
+        #--------------BEHAVIOUR VARIRABLEN
         #-------Lists to track behaviour
         #---make them private??
         self.move_x      = []
         self.move_y      = []
+        self.move        = []
         self.click_x     = [] 
         self.click_y     = []
         self.velo_x      = []
@@ -100,8 +111,13 @@ class App(tk.Tk):
         self.acc_y       = []  
         self.time_move   = [] 
         self.time_click  = []
+        self.heatmap_names = ["Standartheatmap", "Heatmap Mausposition", "Heatmap Klickposition", "Heatmap Geschwindigkeit", "Heatmap Beschleunigung" ]
+        self.heatmap_list = []
         self.random_heatmap = np.random.randint(low=0, high=200, size=(200, 250))        
-        
+    
+        #---------PROGRAMLOGIC VARIABLEN
+        self.numberofruns = 1
+        self.listener_list = []
 
         #---container, evtl. header, ... hier hinzufügen
         container = tk.Frame(self, borderwidth=10, relief="sunken")
@@ -125,7 +141,6 @@ class App(tk.Tk):
         # self.heatmap_click = np.empty()
 
 
-        self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
         self.mainloop()
     
     def show_frame(self, cont):
@@ -151,23 +166,88 @@ class App(tk.Tk):
             self.click_y.append(y)
             self.time_click.append(time.time()- self.starttime)
 
-    def start_tracking(self):
-        self.listener.start()
-        self.starttime = time.time()
+
+    def tracking(self, active):
+        
+        if active:
+            #create new listener für neuen Durchlauf
+            #name of listener
+            # self.listener_list.append("listener" + str(self.numberofruns))
+            # print(self.listener_list[-1])
+            self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
+            self.listener.start()
+            self.starttime = time.time()
+
+            print("started")
+
+        else:
+            print("stopped")
+            self.listener.stop()
+            # self.tracking = False
+            self.numberofruns += 1
+            print(self.numberofruns)
+            self.finish_dict()
+
+            #Berechnungen weiter unten ausführen, z.b Klasse 5????    
+            self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
+            self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
+
+            # for key in self.map_dict:
+            #     if self.data_setting[key]["value"]:
+                
+            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
+            self.map_dict["map_1"]["value"]  = self.random_heatmap
+            self.map_dict["map_2"]["value"]  = self.calculate_heatmap(self.move_x, self.move_y)
+            self.map_dict["map_3"]["value"]  = self.calculate_heatmap(self.click_x, self.click_y)
+            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
+            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
+            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
+
+
+            self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
+            self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
+            #Heatmap Berechnung für Velo und Acc anpassen
+            # self.heatmap_velo   = self.calculate_heatmap(self.velo_x, self.velo_y)
+            # self.heatmap_acc   = self.calculate_heatmap(self.acc_x, self.acc_y)
+            self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
+            
+
+
+    def start_tracking(self): #Funktion verworfen!!!
+        #create listener instance = creating a thread
+        #create a thread when function is called 
+        #create a new thread, when function is called a 2,3,4,... time
+        #need counter, to count number of calls 
+        # count =+ 1
+        # listener_name = ""
+        # listener_list = ()
+        # self.
+        # listener_list.append() 
+        # if listener[-1] == None:
+        # self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
+        # self.listener.start()
+        
+        # self.starttime = time.time()
         # self.tracking = True
+        pass
 
-    def stop_tracking(self):
-        self.listener.stop()
-        # self.tracking = False
+    def stop_tracking(self): #VERWORFEN!!!!
+        # self.listener.stop()
+        # # self.tracking = False
 
-        self.finish_dict()
+        # self.finish_dict()
 
         #Berechnungen weiter unten ausführen, z.b Klasse 5????    
-        self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
-        self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
+        # self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
+        # self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
 
-        self.heatmap_move  = self.calculate_heatmap(self.move_x, self.move_y)
-        self.heatmap_click = self.calculate_heatmap(self.click_x, self.click_y)
+        # for key in self.map_dict:
+        #     if self.data_setting[key]["value"]:
+                
+        # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
+        
+
+        # self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click, self.heatmap_velo, self.heatmap_acc]
 
         # self.plot_heatmap(self.heatmap_move, name="Heatmap Movement")
         # self.plot_heatmap(self.heatmap_click, name="Heatmap Clicks")
@@ -192,6 +272,7 @@ class App(tk.Tk):
         # move_velocity = CalculateVeli(, move_y, time_move)
         #click_velocity = CalculateVeli(x, click_y, time_click)
         # CalculateVelocity(click_x, click_y, time_click)
+        pass
 
 
     def update_dict(self, dict, entries):
@@ -417,7 +498,7 @@ class PageTwo(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Anwendung starten",
-                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.start_tracking()])
+                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.tracking(active=True)])
         button2.grid(row=0, column=1)
         
 class PageThree(tk.Frame):
@@ -444,7 +525,7 @@ class PageThree(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.show_frame(PageFour), controller.stop_tracking()])
+                            command=lambda: [controller.show_frame(PageFour), controller.tracking(active=False)])
         button2.grid(row=0, column=1)
 
 class PageFour(tk.Frame):
@@ -499,13 +580,13 @@ class PageFive(tk.Frame):
         self.controller = controller
         
         header = ttk.Frame(self, relief="raised", borderwidth=5)
-        header.grid(row=0, column=0, sticky="nsew")
+        header.grid(row=0, column=0, columnspan=3, sticky="nsew")
 
         body = ttk.Frame(self, relief="sunken", borderwidth=5)
-        body.grid(row=1, column=0, sticky="nsew")
+        body.grid(row=1, column=0, columnspan=3, sticky="nsew")
         
         control = ttk.Frame(self, relief="raised", borderwidth=5)
-        control.grid(row=2, column=0, sticky="nsew")
+        control.grid(row=2, column=0, columnspan=3 ,sticky="nsew")
 
         #----------Header
         ttk.Label(header, text="Seite 5: Darstellung der Inhalte", font=LARGE_FONT).grid()
@@ -516,8 +597,8 @@ class PageFive(tk.Frame):
         #adding an axes object
         ax = fig.add_subplot() 
         ax.set_title("Heatmap aus Zufallszahlen")
-        #plotting der Heatmap
-        ax.imshow(controller.random_heatmap, cmap='hot', interpolation='nearest') #, cmap='gray')
+        #plotting der Heatmap/// Enstrpicht heatmap_list[0]
+        ax.imshow(controller.random_heatmap, cmap='gray', interpolation='nearest') #, cmap='gray') hot
         
         #-------TKINTER AREA ---------creating a Tkinter canvas
         canvas = FigureCanvasTkAgg(fig, master=body)
@@ -542,28 +623,96 @@ class PageFive(tk.Frame):
                             command=lambda: controller.show_frame(StartPage)) #commmand für neuen Thread, Datenspeicherung, neuer Datensatz (----> Programmende!!)
         button1.grid(row=0, column=0)
 
-        button2 = ttk.Button(control, text="nächstes Diagramm",
-                            command=lambda: self.showHeatmap(axes=ax, parent_canvas=canvas, map=controller.heatmap_move, title="Heatmap Moves"))
-        button2.grid(row=0, column=1)
+        self.button2 = ttk.Button(control, text="Heatmaps anzeigen",
+                            command=lambda: self.showHeatmap(axes=ax, parent_canvas=canvas, value_list=controller.heatmap_list, name_list=controller.heatmap_names, parent_frame=control, controller=self.controller))
+        self.button2.grid(row=0, column=1, columnspan=2)
         
         button3 = ttk.Button(control, text="Anwendung schließen",
                             command=lambda: [controller.finishApp()])#, controller.writeCSVFile()])
-        button3.grid(row=0, column=2)
-
-
-    # def clear_plot(self, canvas, parent):         
-    #     if canvas:
-    #         canvas.get_tk_widget().destroy()
-    #         # canvas.winfo_children()[0].destroy()
-    #         # for child in parent.winfo_children():
-    #         #     child.destroy()
+        button3.grid(row=0, column=3)
             
 
-    def showHeatmap(self, axes, parent_canvas, map, title):
+    
+    def showHeatmap(self, axes, parent_canvas, value_list, name_list, parent_frame, controller):
+        #use image viewer example
+        #Alter Ansatz mit dict
+        # axes.clear()
+        # axes.set_title(dict["map_2"]["title"])
+        # axes.imshow(dict["map_2"]["value"], cmap='hot', interpolation='nearest')
+        
         axes.clear()
-        axes.set_title(title)
-        axes.imshow(map, cmap='hot', interpolation='nearest')
+        axes.set_title(name_list[1])
+        axes.imshow(value_list[1], cmap='hot', interpolation='nearest')
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        self.button2.grid_forget()
+
+        #Code für Image List
+        # my_label = tk.Label(image=imagelist[imagenumber])
+        # my_label.grid()
+
+        self.button_back = ttk.Button(parent_frame, text="<<", command= lambda:
+        self.showPreviousHeatmap(axes=axes, parent_canvas=parent_canvas, parent_frame=parent_frame, value_list=controller.heatmap_list, name_list=controller.heatmap_names, seite=0, controller=controller))
+        self.button_back.grid(row=0, column=1)
+
+        self.button_forward = ttk.Button(parent_frame, text=">>", command= lambda:
+        self.showNextHeatmap(axes=axes, parent_canvas=parent_canvas, parent_frame=parent_frame, value_list=controller.heatmap_list, name_list=controller.heatmap_names, seite=2, controller=controller))
+        self.button_forward.grid(row=0, column=2)
+
+
+
+    def showNextHeatmap(self, axes, parent_canvas, parent_frame, value_list, name_list, seite, controller):#, parent_frame, controller):
+        #Alter Ansatz mit dict:
+        # axes.clear()
+        # axes.set_title(dict["map_3"]["title"])
+        # axes.imshow(dict["map_3"]["value"], cmap='hot', interpolation='nearest')
+        # parent_canvas.draw()
+        # parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        
+        axes.clear()
+        axes.set_title(name_list[seite])
+        axes.imshow(value_list[seite], cmap='hot', interpolation='nearest')
+        parent_canvas.draw()
+        parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        self.button_back.grid_forget()
+        self.button_forward.grid_forget()
+        self.button_back    = ttk.Button(parent_frame, text="<<", command= lambda: self.showPreviousHeatmap(axes=axes, parent_canvas=parent_canvas, parent_frame=parent_frame, value_list=controller.heatmap_list, name_list=controller.heatmap_names, seite=seite-1, controller=controller))
+        self.button_forward = ttk.Button(parent_frame, text=">>", command= lambda: self.showNextHeatmap(axes=axes, parent_canvas=parent_canvas, parent_frame=parent_frame, value_list=controller.heatmap_list, name_list=controller.heatmap_names, seite=seite+1, controller=controller))
+        self.button_back.grid(row=0, column=1)
+        self.button_forward.grid(row=0, column=2)
+        
+        if seite==2:
+            print("forward disabled")
+            self.button_forward = ttk.Button(parent_frame, text=">>", state='disabled')
+            self.button_forward.grid(row=0, column=2)
+        
+    def showPreviousHeatmap(self, axes, parent_canvas, parent_frame, value_list, name_list, seite, controller):
+        
+        # axes.clear()
+        # axes.set_title(dict["map_1"]["title"])
+        # axes.imshow(dict["map_1"]["value"], cmap='hot', interpolation='nearest')
+        # parent_canvas.draw()
+        # parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        axes.clear()
+        axes.set_title(name_list[seite])
+        axes.imshow(value_list[seite], cmap='hot', interpolation='nearest')
+        parent_canvas.draw()
+        parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        self.button_back.grid_forget()
+        self.button_forward.grid_forget()
+        self.button_back    = ttk.Button(parent_frame, text="<<", command= lambda: self.showPreviousHeatmap(axes=axes, parent_canvas=parent_canvas, parent_frame=parent_frame, value_list=controller.heatmap_list, name_list=controller.heatmap_names, seite=seite-1, controller=controller))
+        self.button_forward = ttk.Button(parent_frame, text=">>", command= lambda: self.showNextHeatmap(axes=axes, parent_canvas=parent_canvas, parent_frame=parent_frame, value_list=controller.heatmap_list, name_list=controller.heatmap_names, seite=seite+1, controller=controller))
+        self.button_back.grid(row=0, column=1)
+        self.button_forward.grid(row=0, column=2)
+               
+        if seite==0:
+            print("back disabled")
+            self.button_back = ttk.Button(parent_frame, text="<<", state='disabled')
+            self.button_back.grid(row=0, column=1)
+        
+
 
 app = App()

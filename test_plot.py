@@ -20,10 +20,7 @@ class App(tk.Tk):
 
     def __init__(self, *args, **kwargs):
 
-        tk.Tk.__init__(self, *args, **kwargs)
-
-        # self.root = tk.Tk()
-        
+        tk.Tk.__init__(self, *args, **kwargs)        
 
         self.move_x      = []
         self.move_y      = []

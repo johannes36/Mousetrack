@@ -38,6 +38,16 @@ Version 1.0.6
         3. Seite 3
         4. Seite 4
 
+Version 1.0.7
+    1. Quit Button hinzugefügt
+    2. Heatmap mit Zufallszahlen wird in GUI Seite 5 eingebunden
+        Button ermöglicht Anzeigen der Heatmap der Moves
+
+Version 1.0.8
+    1.Threading
+        Listener kann multiple Times gestartet werden
+    2.Heatmap
+        zwischen Heatmaps der Moves und Klicks kann über Button gewechselt werden
 
                 # Zukunft: 
                 3. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
