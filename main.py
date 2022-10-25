@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 
 import time as time
-from unicodedata import name
 
 from pynput import mouse as mouse
 
@@ -12,7 +11,7 @@ import matplotlib as mpl
 
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)  # type: ignore
 # from matplotlib.figure import Figure
 # from matplotlib import cm
 # from matplotlib.colors import ListedColormap, LinearSegmentedColormap
@@ -24,8 +23,8 @@ import os as os
 
 LARGE_FONT= ("Verdana", 12)
 
-
 class App(tk.Tk):
+# class App(tk.Frame):
 
     def __init__(self, *args, **kwargs):
         
@@ -39,7 +38,7 @@ class App(tk.Tk):
             "info_3":    {"name" : "Alter:",            "value" : tk.IntVar()},
             "info_4":    {"name" : "Technikaffinität:", "value" : tk.IntVar()},
             "info_5":    {"name" : "Geschlecht:",       "value" : tk.StringVar()},
-            }
+        }
         self.entries_info = [tk.StringVar(), tk.StringVar(), tk.IntVar(), tk.IntVar(), tk.StringVar()]
 
         self.data_setting = {
@@ -80,6 +79,26 @@ class App(tk.Tk):
             "map_5": {"title" : "Heatmap Beschleunigung", "value" : np.empty},
         }
 
+        #--------------BEHAVIOUR VARIRABLEN
+        #-------Lists to track behaviour
+        #---make them private??
+        self.move_x      = []
+        self.move_y      = []
+        self.move        = []
+        self.click_x     = [] 
+        self.click_y     = []
+        self.velo_x      = []
+        self.velo_y      = []
+        self.acc_x       = []  
+        self.acc_y       = []  
+        self.time_move   = [] 
+        self.time_click  = []
+        self.heatmap_names = ["Standartheatmap", "Heatmap Mausposition", "Heatmap Klickposition", "Heatmap Geschwindigkeit", "Heatmap Beschleunigung" ]
+        self.heatmap_list = []
+        self.random_heatmap = np.random.randint(low=0, high=200, size=(200, 250))    
+
+
+        #-----WINDOW SETTINGS
         #-----window geometry
         self.title("Mousetrack")
                 
@@ -97,31 +116,12 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         
-        #--------------BEHAVIOUR VARIRABLEN
-        #-------Lists to track behaviour
-        #---make them private??
-        self.move_x      = []
-        self.move_y      = []
-        self.move        = []
-        self.click_x     = [] 
-        self.click_y     = []
-        self.velo_x      = []
-        self.velo_y      = []
-        self.acc_x       = []  
-        self.acc_y       = []  
-        self.time_move   = [] 
-        self.time_click  = []
-        self.heatmap_names = ["Standartheatmap", "Heatmap Mausposition", "Heatmap Klickposition", "Heatmap Geschwindigkeit", "Heatmap Beschleunigung" ]
-        self.heatmap_list = []
-        self.random_heatmap = np.random.randint(low=0, high=200, size=(200, 250))        
     
-        #---------PROGRAMLOGIC VARIABLEN
-        self.numberofruns = 1
-        self.listener_list = []
-
+    
         #---container, evtl. header, ... hier hinzufügen
-        container = tk.Frame(self, borderwidth=10, relief="sunken")
+        container = ttk.Frame(self, borderwidth=10, relief="sunken")
         container.grid(sticky="nsew")
+        # container.pack(fill="both")
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
@@ -129,25 +129,21 @@ class App(tk.Tk):
 
         for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive):
 
-            frame = F(container, self)
+            frame = F(parent=container, controller=self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-
+            # frame.pack(fill="both")
         self.show_frame(StartPage)
-
-
         
         # self.heatmap_move = np.empty()
         # self.heatmap_click = np.empty()
 
-
+        self.protocol("WM_DELETE_WINDOW", func=self.finishApp())
         self.mainloop()
     
     def show_frame(self, cont):
-
         frame = self.frames[cont]
-        frame.tkraise()
-    
+        frame.tkraise()  
 
     def on_move(self, x, y):
 
@@ -166,26 +162,18 @@ class App(tk.Tk):
             self.click_y.append(y)
             self.time_click.append(time.time()- self.starttime)
 
-
     def tracking(self, active):
         
         if active:
-            #create new listener für neuen Durchlauf
-            #name of listener
-            # self.listener_list.append("listener" + str(self.numberofruns))
-            # print(self.listener_list[-1])
             self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
             self.listener.start()
             self.starttime = time.time()
-
             print("started")
 
         else:
             print("stopped")
             self.listener.stop()
             # self.tracking = False
-            self.numberofruns += 1
-            print(self.numberofruns)
             self.finish_dict()
 
             #Berechnungen weiter unten ausführen, z.b Klasse 5????    
@@ -210,73 +198,18 @@ class App(tk.Tk):
             # self.heatmap_velo   = self.calculate_heatmap(self.velo_x, self.velo_y)
             # self.heatmap_acc   = self.calculate_heatmap(self.acc_x, self.acc_y)
             self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
-            
+            # save_2D_data_with_time(move_x, move_y, time_move, filename= "move.csv")
+            # save_2D_data_with_time(click_x, click_y, time_click, filename= "click.csv")
 
+            #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
+            # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
+            # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
 
-    def start_tracking(self): #Funktion verworfen!!!
-        #create listener instance = creating a thread
-        #create a thread when function is called 
-        #create a new thread, when function is called a 2,3,4,... time
-        #need counter, to count number of calls 
-        # count =+ 1
-        # listener_name = ""
-        # listener_list = ()
-        # self.
-        # listener_list.append() 
-        # if listener[-1] == None:
-        # self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
-        # self.listener.start()
-        
-        # self.starttime = time.time()
-        # self.tracking = True
-        pass
-
-    def stop_tracking(self): #VERWORFEN!!!!
-        # self.listener.stop()
-        # # self.tracking = False
-
-        # self.finish_dict()
-
-        #Berechnungen weiter unten ausführen, z.b Klasse 5????    
-        # self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
-        # self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
-
-        # for key in self.map_dict:
-        #     if self.data_setting[key]["value"]:
-                
-        # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
-        
-
-        # self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click, self.heatmap_velo, self.heatmap_acc]
-
-        # self.plot_heatmap(self.heatmap_move, name="Heatmap Movement")
-        # self.plot_heatmap(self.heatmap_click, name="Heatmap Clicks")
-
-        # print("Velo x:" + str(self.velo_x))
-        # print("Velo y:" + str(self.velo_y))
-        # print("Acc x:" + str(self.acc_x))
-        # print("Acc y:" + str(self.acc_y))
-        
-        # print(self.move_x)
-        # print(self.move_y)
-        # print(self.time_move)
-
-
-        # save_2D_data_with_time(move_x, move_y, time_move, filename= "move.csv")
-        # save_2D_data_with_time(click_x, click_y, time_click, filename= "click.csv")
-
-        #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
-        # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
-        # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
-
-        # move_velocity = CalculateVeli(, move_y, time_move)
-        #click_velocity = CalculateVeli(x, click_y, time_click)
-        # CalculateVelocity(click_x, click_y, time_click)
-        pass
-
+            # move_velocity = CalculateVeli(, move_y, time_move)
+            #click_velocity = CalculateVeli(x, click_y, time_click)
+            # CalculateVelocity(click_x, click_y, time_click)
 
     def update_dict(self, dict, entries):
-
         for index, key in enumerate (dict):
             dict[key]["value"] = entries[index].get()
         print(dict)
@@ -318,15 +251,11 @@ class App(tk.Tk):
 
         return heatmap 
 
-
-    
     def finish_dict(self):
         #write all data that wants to be saved to a dict
         for key in self.data_setting:
             if self.data_setting[key]["value"]:
                 pass
-
-            
 
     def save_2D_data_with_time(self, data_x, data_y, time, filename):
         #function to write data in csv file with timepoints
@@ -351,20 +280,19 @@ class App(tk.Tk):
             for line in lines:
                 writer.writerow(line)
 
-
     def save_heatmap(self, data, filename):
         # with open(filename, "w") as file:
         #     for x, y in data:
         #         file.writelines(str(x) + '\n')
         #         file.writelines(str(y) + '\n')
         pass
-
     # def writeCSVFile(filenamePath, lines, delimiter=','):
     #     with open(os.path.expanduser(filenamePath), 'w', newline='') as csvfile:
     #         writer = csv.writer(csvfile, delimiter=delimiter)
     #         for line in lines:
     #             writer.writerow(line)
     def finishApp(self):
+        print("finished")
         self.quit()
 
 class StartPage(tk.Frame):
@@ -716,3 +644,8 @@ class PageFive(tk.Frame):
 
 
 app = App()
+
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     App(root).pack(side="top", fill="both", expand=True)
+#     root.mainloop()
