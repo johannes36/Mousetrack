@@ -21,6 +21,8 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import csv as csv
 import os as os
 
+
+#-TKINTER STYLE CONSTANTS
 LARGE_FONT= ("Verdana", 12)
 
 class App(tk.Tk):
@@ -81,7 +83,6 @@ class App(tk.Tk):
 
         #--------------BEHAVIOUR VARIRABLEN
         #-------Lists to track behaviour
-        #---make them private??
         self.move_x      = []
         self.move_y      = []
         self.move        = []
@@ -101,7 +102,7 @@ class App(tk.Tk):
         #-----WINDOW SETTINGS
         #-----window geometry
         self.title("Mousetrack")
-                
+        # self.geometry("420x720")        
         # window_width  = 500
         # window_height = 500
 
@@ -133,7 +134,7 @@ class App(tk.Tk):
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
             # frame.pack(fill="both")
-        self.show_frame(StartPage)
+        self.showFrame(StartPage)
         
         # self.heatmap_move = np.empty()
         # self.heatmap_click = np.empty()
@@ -141,22 +142,20 @@ class App(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", func=self.finishApp())
         self.mainloop()
     
-    def show_frame(self, cont):
+    def showFrame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()  
 
-    def on_move(self, x, y):
-
+    def onMove(self, x, y):
         print('Maus bewegt zu {0}'.format((x, y)))
         self.move_x.append(x)
         self.move_y.append(y)
         self.time_move.append(time.time() - self.starttime)
 
-    def on_click(self, x, y, button, pressed):
+    def onClick(self, x, y, button, pressed):
         print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
         print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
 
-        #nur left klicks, keine release sind interessant
         if str(button) == 'Button.left' and pressed:
             self.click_x.append(x)
             self.click_y.append(y)
@@ -165,7 +164,7 @@ class App(tk.Tk):
     def tracking(self, active):
         
         if active:
-            self.listener = mouse.Listener(on_move=self.on_move, on_click=self.on_click)
+            self.listener = mouse.Listener(on_move=self.onMove, on_click=self.onClick)
             self.listener.start()
             self.starttime = time.time()
             print("started")
@@ -173,7 +172,6 @@ class App(tk.Tk):
         else:
             print("stopped")
             self.listener.stop()
-            # self.tracking = False
             self.finish_dict()
 
             #Berechnungen weiter unten ausführen, z.b Klasse 5????    
@@ -232,17 +230,11 @@ class App(tk.Tk):
                 diff_x.append((abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1]))
                 diff_y.append((abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1]))
 
-        # print("Geschwindigkeit x:" + str(diff_x))
-        # print("Geschwindigkeit y:" + str(diff_y))
-
         return diff_x, diff_y
 
     def calculate_heatmap(self, x_Data, y_Data):
 
         heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
-        # print(len(x_Data))
-        # print(type(heatmap))
-        # print(np.shape(heatmap))
 
         for i in range(len(x_Data)):
             heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
@@ -325,10 +317,10 @@ class StartPage(tk.Frame):
         ttk.Label(control, text="Dies ist der Kontrollbereich").grid(row=0, column=0)
 
         ttk.Button(control, text="nächste Seite",
-                            command=lambda: controller.show_frame(PageOne)).grid(row=1, column=0)
+                            command=lambda: controller.showFrame(PageOne)).grid(row=1, column=0)
 
         ttk.Button(control, text="Seite 2",
-                            command=lambda: controller.show_frame(PageTwo)).grid(row=1, column=1)
+                            command=lambda: controller.showFrame(PageTwo)).grid(row=1, column=1)
 
 class PageOne(tk.Frame):
 
@@ -381,11 +373,11 @@ class PageOne(tk.Frame):
 
         #-------Control #Buttoon zur Bestätigung? ---> Drücken übergibt werte an dict? bei next button press übergabe der Werte?
         button1 = ttk.Button(control, text="zurück zu Start",
-                            command=lambda: controller.show_frame(StartPage))
+                            command=lambda: controller.showFrame(StartPage))
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="nächste Seite",
-                            command=lambda: [controller.show_frame(PageTwo), controller.update_dict(controller.data_info, controller.entries_info)])
+                            command=lambda: [controller.showFrame(PageTwo), controller.update_dict(controller.data_info, controller.entries_info)])
         button2.grid(row=0, column=1, sticky="e")
 
 class PageTwo(tk.Frame):
@@ -422,11 +414,11 @@ class PageTwo(tk.Frame):
 
         #----------Controls
         button1 = ttk.Button(control, text="vorherige Seite",
-                            command=lambda: controller.show_frame(PageOne))
+                            command=lambda: controller.showFrame(PageOne))
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Anwendung starten",
-                            command=lambda: [controller.show_frame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.tracking(active=True)])
+                            command=lambda: [controller.showFrame(PageThree), controller.update_dict(controller.data_setting, controller.entries_setting),  controller.tracking(active=True)])
         button2.grid(row=0, column=1)
         
 class PageThree(tk.Frame):
@@ -449,11 +441,11 @@ class PageThree(tk.Frame):
 
         #-------Control
         button1 = ttk.Button(control, text="Anwendung pausieren")#,
-                            #command=lambda: controller.show_frame(PageThree))
+                            #command=lambda: controller.showFrame(PageThree))
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.show_frame(PageFour), controller.tracking(active=False)])
+                            command=lambda: [controller.showFrame(PageFour), controller.tracking(active=False)])
         button2.grid(row=0, column=1)
 
 class PageFour(tk.Frame):
@@ -493,7 +485,7 @@ class PageFour(tk.Frame):
             
             #-------Control
             button1 = ttk.Button(control, text="zur nächsten Seite", command=lambda: [
-                                controller.show_frame(PageFive),
+                                controller.showFrame(PageFive),
                                 controller.update_dict(controller.data_visualize, controller.entries_visualize), 
                                 controller.update_dict(controller.data_export, controller.entries_export)
                                 ])
@@ -548,7 +540,7 @@ class PageFive(tk.Frame):
 
                 #----------control
         button1 = ttk.Button(control, text="zurück zur Startseite",
-                            command=lambda: controller.show_frame(StartPage)) #commmand für neuen Thread, Datenspeicherung, neuer Datensatz (----> Programmende!!)
+                            command=lambda: controller.showFrame(StartPage)) #commmand für neuen Thread, Datenspeicherung, neuer Datensatz (----> Programmende!!)
         button1.grid(row=0, column=0)
 
         self.button2 = ttk.Button(control, text="Heatmaps anzeigen",
