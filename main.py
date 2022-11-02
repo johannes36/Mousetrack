@@ -12,9 +12,10 @@ import matplotlib as mpl
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)  # type: ignore
+
 # from matplotlib.figure import Figure
 # from matplotlib import cm
-# from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 
 import csv as csv
@@ -109,7 +110,11 @@ class App(tk.Tk):
         self.heatmap_list = []
         self.standart_background = plt.imread("backgroundHeatmap.png")
         self.random_heatmap = np.random.randint(low=0, high=200, size=(np.shape(self.standart_background)[0], np.shape(self.standart_background)[1]))
-            
+        
+        print("Form von shape [0]: " + str(np.shape(self.standart_background)[0]))
+        print("Form von shape [1]: " + str(np.shape(self.standart_background)[1]))
+        print("Form von shape [2]: " + str(np.shape(self.standart_background)[2]))
+             
 
 
         #-----WINDOW SETTINGS
@@ -163,7 +168,7 @@ class App(tk.Tk):
         #negative Werte weglassem
         #nur Pixelpositionen aufnehmen, die Form 1080x1920 erfüllen
         
-        if (x >= 0 and x < 1080) and (y >=0 and y < 1920):
+        if (x >= 0 and x < np.shape(self.standart_background)[1]) and (y >=0 and y < np.shape(self.standart_background)[0]):
             print('Maus bewegt zu {0}'.format((x, y)))
             self.move_x.append(x)
             self.move_y.append(y)
@@ -194,6 +199,9 @@ class App(tk.Tk):
             print("stopped")
             self.listener.stop()
             self.finish_dict()
+
+            #lieber erst in Page5 einlesen?
+            # self.new_background = plt.imread("backgroundHeatmap")
 
             #Berechnungen weiter unten ausführen, z.b Klasse 5????    
             self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
@@ -547,6 +555,7 @@ class PageFive(tk.Frame):
         ttk.Label(header, text="Seite 5: Darstellung der Inhalte", font=LARGE_FONT).grid()
 
         #-------PLOTTING AREA-------------------
+        self.background = plt.imread("backgroundHeatmap.png")
         #creating a figure
         fig = plt.figure()
         #adding an axes object
@@ -583,7 +592,7 @@ class PageFive(tk.Frame):
         button1.grid(row=0, column=0)
 
         self.button2 = ttk.Button(control, text="Heatmaps anzeigen",
-                            command=lambda: self.oldShowHeatmap(axes=ax, parent_canvas=canvas, value_list=controller.heatmap_list, name_list=controller.heatmap_names, parent_frame=control, controller=self.controller))
+                            command=lambda: self.ShowHeatmap(axes=ax, parent_canvas=canvas, value_list=controller.heatmap_list, name_list=controller.heatmap_names, parent_frame=control, controller=self.controller))
         self.button2.grid(row=0, column=1, columnspan=2)
         
         # self.button2 = ttk.Button(control, text="Heatmaps anzeigen",
@@ -596,24 +605,21 @@ class PageFive(tk.Frame):
         button3.grid(row=0, column=3)
             
 
-    def ShowHeatmap(self):
-        pass
-        
-
-
-    def oldShowHeatmap(self, axes, parent_canvas, value_list, name_list, parent_frame, controller):
+    def ShowHeatmap(self, axes, parent_canvas, value_list, name_list, parent_frame, controller):
         #use image viewer example
         #Alter Ansatz mit dict
         # axes.clear()
         # axes.set_title(dict["map_2"]["title"])
         # axes.imshow(dict["map_2"]["value"], cmap='hot', interpolation='nearest')
-    
-        background = plt.imread("backgroundHeatmap.png")
+
+
+        
 
         axes.clear()
         axes.set_title(name_list[1])
-        axes.imshow(background)
+        axes.imshow(self.background)
         plt.pcolormesh(value_list[1], alpha=0.6, cmap="inferno")
+
 
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -645,7 +651,10 @@ class PageFive(tk.Frame):
         
         axes.clear()
         axes.set_title(name_list[seite])
-        axes.imshow(value_list[seite], cmap='hot', interpolation='nearest')
+        # plt.imshow(self.background)
+        axes.imshow(self.background)
+        plt.pcolormesh(value_list[seite], alpha=0.6, cmap="inferno")
+
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
@@ -670,7 +679,9 @@ class PageFive(tk.Frame):
         # parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         axes.clear()
         axes.set_title(name_list[seite])
-        axes.imshow(value_list[seite], cmap='hot', interpolation='nearest')
+        #plt.imshow(self.background)
+        axes.imshow(self.background)
+        plt.pcolormesh(value_list[seite], alpha=0.6, cmap="inferno")
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
