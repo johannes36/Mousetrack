@@ -14,8 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)  # type: ignore
 
 # from matplotlib.figure import Figure
-# from matplotlib import cm
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib import cm
+from matplotlib.colors import ListedColormap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 import csv as csv
@@ -556,6 +557,15 @@ class PageFive(tk.Frame):
 
         #-------PLOTTING AREA-------------------
         self.background = plt.imread("backgroundHeatmap.png")
+
+        colormap = mpl.colormaps['YlOrRd']  # type: ignore
+        newcolors = colormap(np.linspace(0.3, 1, 256))
+        white = np.array([1, 1, 1, 1])
+        newcolors[:25, :] = white
+        # cmap = cm.get_cmap("YlOrRd", 100)
+        # self.newcmap = ListedColormap(cmap(np.linspace(0, 0.7, 100)))  # type: ignore
+        self.newcmap = ListedColormap(newcolors)  # type: ignore
+        print("in init: " + str(self.newcmap))
         #creating a figure
         fig = plt.figure()
         #adding an axes object
@@ -565,8 +575,12 @@ class PageFive(tk.Frame):
         
         #ax.imshow(.....)
         plt.imshow(controller.standart_background)
-        plt.pcolormesh(controller.random_heatmap, alpha=0.6, cmap="inferno")
-        plt.colorbar(cmap="inferno")
+        plt.pcolormesh(controller.random_heatmap, alpha=0.8, cmap=self.newcmap)
+        
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.25)
+
+        plt.colorbar(cax=cax)
 
         #-------TKINTER AREA ---------creating a Tkinter canvas
         canvas = FigureCanvasTkAgg(fig, master=body)
@@ -618,7 +632,8 @@ class PageFive(tk.Frame):
         axes.clear()
         axes.set_title(name_list[1])
         axes.imshow(self.background)
-        plt.pcolormesh(value_list[1], alpha=0.6, cmap="inferno")
+        plt.pcolormesh(value_list[1], alpha=0.8, cmap=self.newcmap)
+        print("in ShowHeat: " + str(self.newcmap))
 
 
         parent_canvas.draw()
@@ -653,7 +668,8 @@ class PageFive(tk.Frame):
         axes.set_title(name_list[seite])
         # plt.imshow(self.background)
         axes.imshow(self.background)
-        plt.pcolormesh(value_list[seite], alpha=0.6, cmap="inferno")
+        plt.pcolormesh(value_list[seite], alpha=0.8, cmap=self.newcmap)
+        print("in ShowNext: " + str(self.newcmap))
 
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -681,7 +697,9 @@ class PageFive(tk.Frame):
         axes.set_title(name_list[seite])
         #plt.imshow(self.background)
         axes.imshow(self.background)
-        plt.pcolormesh(value_list[seite], alpha=0.6, cmap="inferno")
+        plt.pcolormesh(value_list[seite], alpha=0.8, cmap=self.newcmap)
+        print("in ShowPrevious: " + str(self.newcmap))
+        
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 

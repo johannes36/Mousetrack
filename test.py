@@ -3,48 +3,47 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from matplotlib import cm
-
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 background = plt.imread("backgroundHeatmap.png")
 
-form = np.shape(background)
-print(form)
+shape = np.shape(background)
 
-print("testshape: " + str(np.shape(background)[1]))
+colormap = mpl.colormaps['YlOrRd']  # type: ignore
+newcolors = colormap(np.linspace(0, 0.7, 256))
+cmap = cm.get_cmap("YlOrRd", 100)
+white = np.array([1, 1, 1, 1])
+newcolors[:25, :] = white
 
-# print(background)
+# newcmap = ListedColormap(cmap(np.linspace(0, 0.7, 100)))  # type: ignore
+newcmap = ListedColormap(newcolors)  # type: ignore
+# Farbe "YlOrRd"
+# newcmap = mpl.colormaps['YlOrRd']  # type: ignore
 
-print("shape 0: " + str(form[0]))
-print("shape 1: " + str(form[1]))
-print("shape 2: " + str(form[2]))
-
-print("x Eintrag background" + str(len(background[0])))
-
-print("y Eintrag background" + str(len(background[1])))
-
-print("3te Dimension" + str(len(background[2])))
-
-"""
-hsv_modified = cm.get_cmap('hsv', 256)
-# newcmp = ListedColormap(hsv_modified(np.linspace(0.3, 0.7, 256)))
-
-data = np.random.randint(low=0, high=256, size=(shape[0], shape[1]))
+data = np.random.randint(low=0, high=500, size=(shape[0], shape[1]))
 #create colormap
-# newcmp = ListedColormap
-# print(data)
+
+
 
 fig = plt.figure(figsize=(7,6))
-ax = fig.add_subplot()
+ax = plt.gca()
+# plt.imshow(background)
+plt.imshow(background)
+plt.pcolormesh(data, alpha=0.6, cmap=newcmap)
 
-ax.imshow(background)
-plt.pcolormesh(data, alpha=0.1, cmap=newcmp)
-plt.colorbar()
+
+# Calculate (height_of_image / width_of_image)
+# im_ratio = background.shape[0]/background.shape[1]
+
+# plt.colorbar(fraction=0.047*im_ratio)
+
+#-----------------------
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("right", size="5%", pad=0.25)
+
+plt.colorbar(cax=cax)
+#----------------------
 
 plt.show()
-"""
-# plt.figure(figsize=(7,6))
-# plt.pcolormesh(data, cmap="inferno")
-# plt.colorbar()
-# plt.imshow(background)
-# plt.show()
+
