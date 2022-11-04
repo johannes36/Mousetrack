@@ -47,9 +47,18 @@ Version 1.0.8
     1.Threading
         Listener kann multiple Times gestartet werden
     2.Heatmap
-        zwischen Heatmaps der Moves und Klicks kann über Button gewechselt werden
+        zwischen Heatmaps der Moves und Klicks kann über Button gewechselt 
+        
+Version 1.0.9
+    1. Tracking nur auf einem Bildschirm
+        Heatmap wird auf Screenshot des Bildschirms erstellt
+
 
                 # Zukunft: 
                 3. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
                 Es gibt nun die Möglickeit genau auszuwählen, was mit den Daten im Nachhinein geschieht
                 # 3. Live Seite während des Trackings mit Timer und Stop
+                4. Heatmap Colorbar anpassen
+                    Heatmap verschönern
+                5. Seiten verschönern
+                6. Refactoring
