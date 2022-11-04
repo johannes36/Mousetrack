@@ -9,7 +9,7 @@ import matplotlib as mpl
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
+    FigureCanvasTkAgg, NavigationToolbar2Tk) # type: ignore
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 from matplotlib import cm
