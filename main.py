@@ -2,14 +2,24 @@
 #-TKINTER STYLE CONSTANTS
 # from controls import Control
 
-from pagecontrol import PageControl as pagecontrol
-
-
-# controller = Control(10)
-
-# application = app.start()
-# app.geometry()
+from app import App
 
 if __name__ == "__main__":
-    x = pagecontrol(10)
-    x.showNextPage(5, "was wesi")
+    app = App()
+    app.mainloop()
+
+
+
+# import numpy as np
+
+# test_array = np.empty(shape=(0,3))
+# print(test_array)
+
+
+# new_test_array = np.append(test_array, [1,2,3]) 
+
+# print(new_test_array)
+
+# new_test_array = np.append(test_array, [7,8,10])
+
+# print(new_test_array)
