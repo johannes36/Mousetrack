@@ -1,23 +1,20 @@
 import tkinter as tk
 from tkinter import ttk
 
-import time as time
 
-from pynput import mouse as mouse
 
 import numpy as np
 
 import csv as csv
 import os as os
 
-import pyautogui as pag
 
-import StartPage as StartPage
-import PageOne as PageOne
-import PageTwo as PageTwo
-import PageThree as PageThree
-import PageFour as PageFour
-import PageFive as PageFive
+import startpage as StartPage
+import pageone as PageOne
+import pagetwo as PageTwo
+import pagethree as PageThree
+import pagefour as PageFour
+import pagefive as PageFive
 
 import matplotlib.pyplot as plt
 
@@ -148,25 +145,7 @@ class App(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()  
 
-    def onMouseMove(self, x, y):
-        #negative Werte weglassem
-        #nur Pixelpositionen aufnehmen, die Form 1080x1920 erfüllen
-        
-        if (x >= 0 and x < np.shape(self.standart_background)[1]) and (y >=0 and y < np.shape(self.standart_background)[0]):
-            print('Maus bewegt zu {0}'.format((x, y)))
-            self.move_x.append(x)
-            self.move_y.append(y)
-            self.time_move.append(time.time() - self.starttime)
-
-    def onMouseClick(self, x, y, button, pressed):
-        print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
-        print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
-
-        if str(button) == 'Button.left' and pressed:
-            if (x >= 0 and x < 1080) and (y >=0 and y < 1920):
-                self.click_x.append(x)
-                self.click_y.append(y)
-                self.time_click.append(time.time()- self.starttime)
+    
 
     def tracking(self, active):
         #Hieraus 2 Funktionen machen -> On Start App und On Stop App?
