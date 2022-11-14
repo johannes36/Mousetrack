@@ -33,11 +33,12 @@ class Model:
                 
         
     def on_MouseClick(self, x, y, button, pressed):
-        print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
-        print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
-
+       
         if str(button) == 'Button.left' and pressed:
             if (x >= 0 and x < pag.size()[1]) and (y >=0 and y < pag.size()[0]):
+                
+                print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+                print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
 
                 self.dataClicks = np.vstack([self.dataClicks, [x, y, time.time()-self.starttime]])
                

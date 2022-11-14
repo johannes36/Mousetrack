@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
+import application as app
+
+import controls as controls
+
 LARGE_FONT= ("Verdana", 12)
 
 class StartPage(tk.Frame):
@@ -43,7 +47,7 @@ class StartPage(tk.Frame):
         ttk.Label(control, text="Dies ist der Kontrollbereich").grid(row=0, column=0)
 
         ttk.Button(control, text="nächste Seite",
-                            command=lambda: controller.showFrame(PageOne)).grid(row=1, column=0)
+                            command=lambda: app.showFrame(PageOne)).grid(row=1, column=0)
 
         ttk.Button(control, text="Seite 2",
                             command=lambda: controller.showFrame(PageTwo)).grid(row=1, column=1)
