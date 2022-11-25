@@ -1,7 +1,9 @@
+# python -m pip --version
+#-TKINTER STYLE CONSTANTS
 import tkinter as tk
 
 from model import Model
-from view import MainView
+from viewer import MainView
 from controller import Controller
 
 class App(tk.Tk):
@@ -19,3 +21,9 @@ class App(tk.Tk):
         controller = Controller(model, view)
 
         view.set_controller(controller)
+
+
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()

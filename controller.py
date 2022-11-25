@@ -5,7 +5,6 @@ class Controller:
 
     def start_Tracking(self):
         try:
-        
             self.model.start_Tracking()
             print("Succes, Tracking started")
 
@@ -15,7 +14,6 @@ class Controller:
     def stop_Tracking(self):
 
         try:
-        
             self.model.stop_Tracking()
             print("Succes, Tracking stopped")
 
@@ -29,12 +27,8 @@ class Controller:
         :return:
         """
         try:
-
-            # save the model
             # self.model.nameDataset = nameDataset
             self.model.save_DataToCSV(self.model.dataMovement, nameDataset)
-
-            # show a success message
             #self.view.show_success(f'The email {email} saved!')
             print("Speichern erfolgreich!")
 

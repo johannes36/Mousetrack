@@ -10,9 +10,6 @@ class MainView(ttk.Frame):
         
         self.controller = None
 
-        ##--------Vereicnfachen??????
-
-
         container = ttk.Frame(self, borderwidth=10, relief="sunken")
         container.grid(sticky="nsew", pady=20, padx=20)
         # container.pack(fill="both")

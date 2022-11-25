@@ -10,8 +10,8 @@ import os as os
 
 
 import startpage as StartPage
-import pageone as PageOne
-import pagetwo as PageTwo
+import pageone_old as PageOne
+import pagetwo_old as PageTwo
 import pagethree as PageThree
 import pagefour as PageFour
 import pagefive as PageFive
