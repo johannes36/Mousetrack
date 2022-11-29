@@ -4,29 +4,40 @@ from tkinter import ttk
 from pageone import PageOne
 from pagetwo import PageTwo
 
-class MainView(ttk.Frame):
+class View(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         
+        # self.parent = parent
+
         self.controller = None
 
-        container = ttk.Frame(self, borderwidth=10, relief="sunken")
-        container.grid(sticky="nsew", pady=20, padx=20)
-        # container.pack(fill="both")
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self._frame = None
 
-        self.frames = {}
-
-        for F in (PageOne, PageTwo):
-
-            frame = F(parent=container, controller=self)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-            # frame.pack(fill="both")
-        self.showFrame_ButtonClicked(PageOne)
+        self.page1 = PageOne(parent)
+        
+        self.page2 = PageTwo(parent)
+        
+        # self.bind_commands()#page1=PageOne, page2=PageTwo)
+        self.show_Page(self.page1)
 
 
+    
+
+    def bind_commands(self, page1, page2):
+        #Achtung, unsinnig, doppelter Aufruf!
+        self.page1.buttons["Show Page2"].configure(command= lambda: [self.show_Page(page2), print("Show page 2 pressed")])
+        
+        
+        self.page2.buttons["Show Page1"].configure(command= self.show_Page(page1))
+
+    
+    def show_Page(self, frame_class):
+        new_frame = frame_class
+        if self._frame is not None:
+            self._frame.destroy()
+        self._frame = new_frame
+        self._frame.grid()
 
     def set_controller(self, controller):
         """
@@ -55,10 +66,3 @@ class MainView(ttk.Frame):
             self.controller.stop_Tracking()
 
 
-
-    def showFrame_ButtonClicked(self, cont):
-        frame = self.frames[cont]
-        frame.tkraise()  
-
-    def nextPage_ButtonClicked(self):
-        pass

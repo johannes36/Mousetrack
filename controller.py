@@ -37,3 +37,13 @@ class Controller:
             #self.view.show_error(error)
 
             print("Speichern nicht möglich")
+
+    def bind_commands(self):
+        try:
+            self.view.bind_commands(self.view.page1, self.view.page2)
+        
+        except ValueError as error:
+            # show an error message
+            #self.view.show_error(error)
+
+            print("Bind der Kommandos nicht möglich")

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-import application as app
+import application_old as app
 
 import controls as controls
 
