@@ -12,32 +12,54 @@ class View(ttk.Frame):
 
         self.controller = None
 
-        self._frame = None
+        self._actualShownPage = None
+
 
         self.page1 = PageOne(parent)
-        
         self.page2 = PageTwo(parent)
         
+        # new approach
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        
+        self.bind_commandsToButtons(page1=self.page1, page2=self.page2)
+
+        self.frames = {}
+
+        for F in (PageOne, PageTwo):
+            frame = F(master=container)
+            self.frames[F] = frame
+
+            frame.grid(row=0, column=0, sticky="nsew")
+
+            frame.rowconfigure(0, weight=1)
+            frame.columnconfigure(0, weight=1)
+
+        # self.show_Page("PageOne")
         # self.bind_commands()#page1=PageOne, page2=PageTwo)
         self.show_Page(self.page1)
 
+ 
+
+    def bind_commandsToButtons(self, page1: PageOne, page2: PageTwo):
+        page1.buttons["Show Page 2"].configure(command= lambda: [self.show_Page(page2), print("Show page 2 pressed")])
+        print(page1.buttons)
+        page2.buttons["Show Page 1"].configure(command= lambda: [self.show_Page(page1), print("Show page 1 pressed")])
 
     
+    def show_Page(self, page_toShow):
+        frame = self.frames[page_toShow]
+        print("Show Page pressed succesfull")
+        frame.tkraise()
 
-    def bind_commands(self, page1, page2):
-        #Achtung, unsinnig, doppelter Aufruf!
-        self.page1.buttons["Show Page2"].configure(command= lambda: [self.show_Page(page2), print("Show page 2 pressed")])
-        
-        
-        self.page2.buttons["Show Page1"].configure(command= self.show_Page(page1))
+        if self._actualShownPage is not None:
+            self._actualShownPage.destroy()
 
-    
-    def show_Page(self, frame_class):
-        new_frame = frame_class
-        if self._frame is not None:
-            self._frame.destroy()
-        self._frame = new_frame
-        self._frame.grid()
+        self._actualShownPage = page_toShow
+        self._actualShownPage.grid()
+        self._actualShownPage.tkraise()
 
     def set_controller(self, controller):
         """

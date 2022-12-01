@@ -1,7 +1,21 @@
+# from viewer import View
+# from model import Model
+
 class Controller:
     def __init__(self, model, view):
         self.model  = model
         self.view   = view
+
+        
+
+    def bind_commandsToButtons(self):
+        try:
+            self.view.bind_commandsToButtons(self.view.page1, self.view.page2)
+        except ValueError as error:
+            # show an error message
+            #self.view.show_error(error)
+
+            print("Bind der Kommandos nicht möglich")
 
     def start_Tracking(self):
         try:
@@ -38,12 +52,3 @@ class Controller:
 
             print("Speichern nicht möglich")
 
-    def bind_commands(self):
-        try:
-            self.view.bind_commands(self.view.page1, self.view.page2)
-        
-        except ValueError as error:
-            # show an error message
-            #self.view.show_error(error)
-
-            print("Bind der Kommandos nicht möglich")

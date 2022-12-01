@@ -20,13 +20,20 @@ class App(tk.Tk):
         model = Model()
 
         view = View(self)
-        view.grid(row = 0, column=0, padx= 100, pady = 100)
-        
 
+        
         controller = Controller(model, view)
 
-        controller.bind_commands()
+        # controller.bind_commandsToButtons()
+
         view.set_controller(controller)
+
+        view.columnconfigure(0, weight = 1)
+        view.rowconfigure(0, weight=1)
+        view.grid(row = 0, column=0, padx= 10, pady = 10)
+        
+
+
 
 
 if __name__ == "__main__":

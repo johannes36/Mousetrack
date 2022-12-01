@@ -20,7 +20,7 @@ class PageOne(ttk.Frame):
 
         label = tk.Label(control_frame, text="Seite 1").grid(row=0, column=0)
         
-        self.create_button(frame=control_frame, name="Show Page2", row=1, column=0)
+        self.create_button(frame=control_frame, name="Show Page 2", row=1, column=0)
 
 
     def create_button(self, frame, name, row, column):
