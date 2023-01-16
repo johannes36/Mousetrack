@@ -14,6 +14,7 @@ class App(tk.Tk):
         super().__init__()
 
         self.title('Mousetrack')
+
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
@@ -21,20 +22,13 @@ class App(tk.Tk):
 
         view = View(self)
 
+        view.grid(row = 0, column=0, padx= 10, pady = 10)
         
         controller = Controller(model, view)
 
         # controller.bind_commandsToButtons()
 
         view.set_controller(controller)
-
-        view.columnconfigure(0, weight = 1)
-        view.rowconfigure(0, weight=1)
-        view.grid(row = 0, column=0, padx= 10, pady = 10)
-        
-
-
-
 
 if __name__ == "__main__":
     app = App()

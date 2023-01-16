@@ -8,14 +8,12 @@ class Controller:
 
         
 
-    def bind_commandsToButtons(self):
+    def update_dict(self, entries):
         try:
-            self.view.bind_commandsToButtons(self.view.page1, self.view.page2)
-        except ValueError as error:
-            # show an error message
-            #self.view.show_error(error)
+            self.model.update_dict(entries)
 
-            print("Bind der Kommandos nicht möglich")
+        except:
+            print("Updaten des dict nicht möglich")
 
     def start_Tracking(self):
         try:
@@ -33,6 +31,15 @@ class Controller:
 
         except:
             print("Tracking kann nicht gestoppt werden")
+
+    def get_Heatmap(self, nameHeatmap):
+        try:
+            if nameHeatmap == "Heatmap Bewegung":
+                return self.model.calculate_heatmap(self.model.dataMovement)
+            elif nameHeatmap == "Heatmap Klicks":
+                return self.model.calculate_heatmap(self.model.dataClicks)
+        except:
+            print("Zugriff auf Heatmap nicht möglich" + nameHeatmap)
 
     def save_DataToCSV(self, nameDataset):
         """
