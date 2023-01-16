@@ -134,7 +134,7 @@ class View(ttk.Frame):
 
         plt.imshow(background_heatmap)
 
-        plt.pcolormesh(heatmap_movement, alpha=0.8)#, cmap=self.newcmap) #vmin, vmax -> range of colornao
+        # plt.pcolormesh(heatmap_movement, alpha=0.8)#, cmap=self.newcmap) #vmin, vmax -> range of colornao
         
         # hmax = sns.heatmap(heatmap_movement, alpha=0.7, cmap=self.newcmap, annot=True, zorder=2)
         # hmax.imshow(background_heatmap, aspect = hmax.get_aspect(), extent = hmax.get_xlim() + hmax.get_ylim(), zorder = 1)
