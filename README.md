@@ -62,3 +62,9 @@ Version 1.0.9
                     Heatmap verschönern
                 5. Seiten verschönern
                 6. Refactoring
+                    -Klasse erstellen, die mehrere Seiten nutzen können
+                    - Methode zum Anwendungsstart 
+                    - Gedanken um App schlanker zu gestalten und main zu füllen
+                        in main sollten Variablen und co definiert und deklariert werden. 
+                        Klassen sollten als Unterstützung dienen
+                    . Methode zum Seitenwechsel (Klasse APP-Control)
