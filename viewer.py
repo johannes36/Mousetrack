@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from PIL import Image, ImageTk
+
 import numpy as np
 
 import matplotlib as mpl
@@ -11,7 +13,6 @@ from matplotlib import cm
 from matplotlib.figure import Figure
 from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import seaborn as sns
 
 class View(ttk.Frame):
     def __init__(self, parent):
@@ -100,75 +101,75 @@ class View(ttk.Frame):
         self.page_parent = ttk.Frame(self)
         self.page_parent.grid(row=0, column=0)
 
-        parent_frame = tk.LabelFrame(master=self.page_parent, text="Seite4")
-        parent_frame.rowconfigure(0, weight=1)
-        parent_frame.columnconfigure(0, weight=1)
-        parent_frame.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+
+
+        analysis_frame = tk.Frame(master=self.page_parent)
+        analysis_frame.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+
+        control_frame = tk.LabelFrame(master=self.page_parent, text="Seite4")
+        control_frame.rowconfigure(0, weight=1)
+        control_frame.columnconfigure(0, weight=1)
+        control_frame.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
    
-        ttk.Button(master=parent_frame, text="Zurück zur Startseite", command=lambda:[self.show_pageOne()] ).grid(row=0, column=0)
-        ttk.Button(master=parent_frame, text="Anwendung schließen und Daten speichern", command=lambda: [self.quit()]).grid(row=0, column=1)
+        ttk.Button(master=control_frame, text="Zurück zur Startseite", command=lambda:[self.show_pageOne()] ).grid(row=0, column=0)
+        ttk.Button(master=control_frame, text="Anwendung schließen und Daten speichern", command=lambda: [self.quit(), self.save_dataClicked()]).grid(row=0, column=1)
 
-        background_heatmap = plt.imread("backgroundHeatmap.png")
+
         heatmap_movement = self.controller.get_Heatmap(nameHeatmap = "Heatmap Bewegung")
-        heatmap_clicks = self.controller.get_Heatmap(nameHeatmap = "Heatmap Klicks")
+        # heatmap_clicks = self.controller.get_Heatmap(nameHeatmap = "Heatmap Klicks")
         
-        # #-------PLOTTING AREA-------------------
+        #-------PLOTTING AREA-------------------
+        #------COLORMAP
 
-        colormap = mpl.colormaps['YlOrRd']  # type: ignore
-        newcolors = colormap(np.linspace(0.3, 1, 256))
-        white = np.array([1, 1, 1, 1])
-        newcolors[:25, :] = white
+        # colormap = mpl.colormaps['YlOrRd']  # type: ignore
+        # newcolors = colormap(np.linspace(0.3, 1, 256))
+        # white = np.array([1, 1, 1, 1])
+        # newcolors[:25, :] = white
 
+        
         # cmap = cm.get_cmap("YlOrRd", 100)
-        # self.newcmap = ListedColormap(cmap(np.linspace(0, 0.7, 100)))  # type: ignore
-        self.newcmap = ListedColormap(newcolors)  # type: ignore
-        #creating a figure
-        fig = plt.figure()
-        #adding an axes object
-        ax = fig.add_subplot() 
+        # newcmap = ListedColormap(cmap(np.linspace(0, 0.7, 100)))  # type: ignore
+        # newcmap = ListedColormap(newcolors)  # type: ignore
+
+
+        
+        
+
+        # Figure und Axes erstellen
+        fig, ax = plt.subplots()
+
+
+        
+        # Untergrundbild hinzufügen
+        background_heatmap = plt.imread("backgroundHeatmap.png")      
+        ax.imshow(background_heatmap)
+
         ax.set_title("Heatmap aus Bewegungsdaten")
-        #plotting der Heatmap/// Enstrpicht heatmap_list[0]
+        ax.set_aspect("equal")
+
+        # #plotting der Heatmap/// Enstrpicht heatmap_list[0]
         
-        #ax.imshow(.....)
+        ax.imshow(heatmap_movement, cmap='hot' , alpha=0.7) #cmap=newcmap
+        # plt.pcolormesh(heatmap_movement, alpha=0.8, cmap=newcmap) #vmin, vmax -> range of colornap
 
-        plt.imshow(background_heatmap)
 
-        # plt.pcolormesh(heatmap_movement, alpha=0.8)#, cmap=self.newcmap) #vmin, vmax -> range of colornao
+        #Einstellungen des Plots:
+
+        # plt.colorbar()
         
-        # hmax = sns.heatmap(heatmap_movement, alpha=0.7, cmap=self.newcmap, annot=True, zorder=2)
-        # hmax.imshow(background_heatmap, aspect = hmax.get_aspect(), extent = hmax.get_xlim() + hmax.get_ylim(), zorder = 1)
-
-
-        # divider = make_axes_locatable(ax)
-        # cax = divider.append_axes("right", size="5%", pad=0.25)
-
-        # plt.colorbar(cax=cax)
-
-        #Skalierung(Bild zu Heatmap prüfen und evtl. Heatmap nur int(ist aber eig nur  int))
-        #-------TKINTER AREA ---------creating a Tkinter canvas
-        canvas = FigureCanvasTkAgg(fig, master=self.page_parent)
+        #shape von Hintergrund und Heatmap müssen übereinstimmen
+        # FigureCanvasTkAgg für das Zeichnen in Tkinter verwenden
+        canvas = FigureCanvasTkAgg(fig, master=analysis_frame)
         canvas.draw()
-        
-        #canvas in body platzieren
-        canvas.get_tk_widget().grid()
-        # creating the Matplotlib toolbar
-        
-        # toolbar = NavigationToolbar2Tk(canvas, parent_analyseFrame)
-        # toolbar.update() 
-                   
-        # placing the toolbar on the Tkinter window
-        canvas.get_tk_widget().grid
-       
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
+        # NavigationToolbar2Tk hinzufügen
+        toolbar = NavigationToolbar2Tk(canvas, analysis_frame)
+        toolbar.update()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+               
 
-
-        print("SHape Map:")
-        print(np.shape(heatmap_movement))
-
-
-        print("SHape Backgrpund:")
-        print(np.shape(background_heatmap))
 
 
     def set_controller(self, controller):
@@ -208,6 +209,10 @@ class View(ttk.Frame):
 
     def stop_ButtonClicked(self):
         if self.controller:
-            self.controller.stop_Tracking() 
+            self.controller.stop_Tracking()
+
+    def save_dataClicked(self):
+        if self.controller:
+            self.controller.save_DataToCSV() 
 
 

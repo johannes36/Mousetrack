@@ -33,6 +33,7 @@ class Controller:
             print("Tracking kann nicht gestoppt werden")
 
     def get_Heatmap(self, nameHeatmap):
+        print(nameHeatmap)
         try:
             if nameHeatmap == "Heatmap Bewegung":
                 return self.model.calculate_heatmap(self.model.dataMovement)
@@ -41,16 +42,15 @@ class Controller:
         except:
             print("Zugriff auf Heatmap nicht möglich" + nameHeatmap)
 
-    def save_DataToCSV(self, nameDataset):
+    def save_DataToCSV(self):#, nameDataset):
         """
         Save the email
         :param name Dataset:
         :return:
         """
         try:
-            # self.model.nameDataset = nameDataset
-            self.model.save_DataToCSV(self.model.dataMovement, nameDataset)
-            #self.view.show_success(f'The email {email} saved!')
+            self.model.save_DataToCSV(self.model.dataMovement, self.model.dictUserInformation["info_1"]["value"], "move")
+            self.model.save_DataToCSV(self.model.dataClicks, self.model.dictUserInformation["info_1"]["value"], "click")
             print("Speichern erfolgreich!")
 
         except ValueError as error:
