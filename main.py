@@ -29,16 +29,7 @@ import pyautogui as pag
 LARGE_FONT= ("Verdana", 12)
 
 
-
-
-
-
-
-
-
-
-
-class App(tk.Tk):
+class MainWindow(tk.Tk):
 # class App(tk.Frame):
 
     def __init__(self, *args, **kwargs):
@@ -51,11 +42,12 @@ class App(tk.Tk):
             "info_1":    {"name" : "Name Datensatz:",   "value" : tk.StringVar()},
             "info_2":    {"name" : "Starke Hand:",      "value" : tk.StringVar()},
             "info_3":    {"name" : "Alter:",            "value" : tk.IntVar()},
-            "info_4":    {"name" : "Technikaffinität:", "value" : tk.IntVar()},
-            "info_5":    {"name" : "Geschlecht:",       "value" : tk.StringVar()},
-        }
-        self.entriesUserInformation = [tk.StringVar(), tk.StringVar(), tk.IntVar(), tk.IntVar(), tk.StringVar()]
+            "info_4":    {"name" : "Geschlecht:",       "value" : tk.StringVar()},
+        } #"info_4":    {"name" : "Technikaffinität:", "value" : tk.IntVar()},
+        self.entriesUserInformation = [tk.StringVar(), tk.StringVar(), tk.IntVar(), tk.StringVar()]
+                                        #tk.IntVar(), 
 
+        """
         self.dictUserSettings = {
             "setting_1": {"name" : "Geschwindigkeit",  "value" : tk.BooleanVar()},
             "setting_2": {"name" : "Beschleunigung",   "value" : tk.BooleanVar()},
@@ -63,7 +55,8 @@ class App(tk.Tk):
             "setting_4": {"name" : "Heatmap",          "value" : tk.BooleanVar()}
         }
         self.entriesUserSettings = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
-        
+        """     
+
         #zum Anzeigen der spezifischen Heatmap 
         self.data_visualize = {
             "visualize_1": {"name" : "Positionsdaten",      "value" : tk.BooleanVar()},
@@ -75,7 +68,7 @@ class App(tk.Tk):
         self.entries_visualize = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
         #besseren Namen finden
 
-
+        """
         self.dictExportData = {
             "export_1": {"name" : "Positionsdaten",            "value" : tk.BooleanVar()},# "data" : self.move},
             "export_2": {"name" : "Geschwindigkeitsdaten",     "value" : tk.BooleanVar()},
@@ -85,7 +78,7 @@ class App(tk.Tk):
         }
 
         self.entriesExportData = [tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar(), tk.BooleanVar()]
-
+            """
         self.map_dict = {
             "map_1": {"title" : "Standartheatmap",        "value" : np.empty},
             "map_2": {"title" : "Heatmap Mausposition",   "value" : np.empty},
@@ -147,7 +140,7 @@ class App(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive):
+        for F in (StartPage, PageOne, PageTwo, PageThree):#, PageFour, PageFive):
 
             frame = F(parent=container, controller=self)
             self.frames[F] = frame
@@ -199,7 +192,7 @@ class App(tk.Tk):
         else:
             print("stopped")
             self.listener.stop()
-            self.finish_dict()
+            #self.finish_dict()
 
             #lieber erst in Page5 einlesen?
             # self.new_background = plt.imread("backgroundHeatmap")
@@ -227,18 +220,10 @@ class App(tk.Tk):
             #Heatmap Berechnung für Velo und Acc anpassen
             # self.heatmap_velo   = self.calculate_heatmap(self.velo_x, self.velo_y)
             # self.heatmap_acc   = self.calculate_heatmap(self.acc_x, self.acc_y)
+    
+    
             self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
-            # save_2D_data_with_time(move_x, move_y, time_move, filename= "move.csv")
-            # save_2D_data_with_time(click_x, click_y, time_click, filename= "click.csv")
-
-            #[0,0] leer, Lösung finden! Daten anders Speichern z.b.
-            # pd.DataFrame(heatmove).to_csv('heatmap_move.csv')
-            # pd.DataFrame(heatclick).to_csv('heatmap_move.csv')
-
-            # move_velocity = CalculateVeli(, move_y, time_move)
-            #click_velocity = CalculateVeli(x, click_y, time_click)
-            # CalculateVelocity(click_x, click_y, time_click)
-
+    
     def update_dict(self, dict, entries):
         for index, key in enumerate (dict):
             dict[key]["value"] = entries[index].get()
@@ -276,47 +261,13 @@ class App(tk.Tk):
         # print(np.max(np.max(heatmap)))
 
         return heatmap 
-
-    def finish_dict(self):
-        #write all data that wants to be saved to a dict
-        for key in self.dictUserSettings:
-            if self.dictUserSettings[key]["value"]:
-                pass
-
-    def save_2D_data_with_time(self, data_x, data_y, time, filename):
-        #function to write data in csv file with timepoints
-        #data has 3 inputs, x, y and time 
-        #daten und Klicks mit Zeitpunkten in File speichern
-
-        # if os.path.exists("demo.txt"):
-        #     #kreiere eine neue Datei, mit anderer Endung
-        #     os.remove("demo.txt")
-        #     file = open("demo.txt", "w")
-        # else:
-        #     file = open("demo.txt", "x")
-
-        # with open(filename, "w") as file:
-        #     for pos in data_x, data_y, time:
-        #         file.writelines(str(pos) + '\n')
-        pass
+    
 
     def writeCSVFile(self, filenamePath, lines, delimiter=','):
         with open(os.path.expanduser(filenamePath), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=delimiter)
             for line in lines:
                 writer.writerow(line)
-
-    def save_heatmap(self, data, filename):
-        # with open(filename, "w") as file:
-        #     for x, y in data:
-        #         file.writelines(str(x) + '\n')
-        #         file.writelines(str(y) + '\n')
-        pass
-    # def writeCSVFile(filenamePath, lines, delimiter=','):
-    #     with open(os.path.expanduser(filenamePath), 'w', newline='') as csvfile:
-    #         writer = csv.writer(csvfile, delimiter=delimiter)
-    #         for line in lines:
-    #             writer.writerow(line)
     def finishApp(self):
         print("finished")
         self.quit()
@@ -337,13 +288,13 @@ class StartPage(tk.Frame):
         # control = ttk.Frame(self, relief="raised", borderwidth=5)
         # control.grid(row=2, column=0, sticky="nsew")
 
-        header = ttk.Frame(self, relief="raised", borderwidth=5)
+        header = ttk.Frame(self)#, relief="raised", borderwidth=5)
         header.pack(fill="both", pady=20, padx=20)
 
-        body = ttk.Frame(self, relief="sunken", borderwidth=5)
+        body = ttk.Frame(self)#, relief="sunken", borderwidth=5)
         body.pack(fill="both", pady=20, padx=20)
         
-        control = ttk.Frame(self, relief="raised", borderwidth=5)
+        control = ttk.Frame(self)#, relief="raised", borderwidth=5)
         control.pack(fill="both", pady=20, padx=20)
 
 
@@ -354,17 +305,20 @@ class StartPage(tk.Frame):
         label_header.grid()
 
         #----------body statt label tk.Text??!!
-        label_body = ttk.Label(body, text="Hier könnte ein Informationstext für Anwender stehen")
+        label_body = ttk.Label(body, text="""Willkommen! Diese Anwendung verwendet Mouse-tracking,
+um Ihr Nutzerverhalten zu analysieren. Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite
+wird das Tracking gestartet. Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beennde.
+Seite 3 dient der Visualisierung der Ergebnisse.
+""")
         label_body.grid()
 
         # -----------Control
-        ttk.Label(control, text="Dies ist der Kontrollbereich").grid(row=0, column=0)
+        # ttk.Label(control, text="Dies ist der Kontrollbereich").grid(row=0, column=0)
 
         ttk.Button(control, text="nächste Seite",
                             command=lambda: controller.showFrame(PageOne)).grid(row=1, column=0)
 
-        ttk.Button(control, text="Seite 2",
-                            command=lambda: controller.showFrame(PageTwo)).grid(row=1, column=1)
+        # ttk.Button(control, text="Seite 2", command=lambda: controller.showFrame(PageTwo)).grid(row=1, column=1)
 
 class PageOne(tk.Frame):
 
@@ -373,13 +327,13 @@ class PageOne(tk.Frame):
         self.controller = controller
         #Different sections of page
 
-        header = ttk.Frame(self, relief="raised", borderwidth=5)
+        header = ttk.Frame(self)#, relief="raised", borderwidth=5)
         header.pack(fill="both", pady=20, padx=20)
 
-        body = ttk.Frame(self, relief="sunken", borderwidth=5)
+        body = ttk.Frame(self)#, relief="sunken", borderwidth=5)
         body.pack(fill="both", pady=20, padx=20)
         
-        control = ttk.Frame(self, relief="raised", borderwidth=5)
+        control = ttk.Frame(self)#, relief="raised", borderwidth=5)
         control.pack(fill="both", pady=20, padx=20)
 
         #-------Header
@@ -406,24 +360,25 @@ class PageOne(tk.Frame):
         ttk.Label(body, text="(Eingabe muss Ganzzahl sein(z.B. 23))").grid(row=2, column=2)
 
         #-----4------
-        ttk.Radiobutton(body, text='1', variable=controller.entriesUserInformation[3], value=1).grid(row=3, column=1)
-        ttk.Radiobutton(body, text='2', variable=controller.entriesUserInformation[3], value=2).grid(row=3, column=2)
-        ttk.Radiobutton(body, text='3', variable=controller.entriesUserInformation[3], value=3).grid(row=3, column=3)
+        # ttk.Radiobutton(body, text='1', variable=controller.entriesUserInformation[3], value=1).grid(row=3, column=1)
+        # ttk.Radiobutton(body, text='2', variable=controller.entriesUserInformation[3], value=2).grid(row=3, column=2)
+        # ttk.Radiobutton(body, text='3', variable=controller.entriesUserInformation[3], value=3).grid(row=3, column=3)
 
         #-----5------
-        ttk.Radiobutton(body, text="männlich", variable=controller.entriesUserInformation[4], value="maennlich").grid(row=4, column=1)
-        ttk.Radiobutton(body, text="weiblich", variable=controller.entriesUserInformation[4], value="weiblich").grid(row=4, column=2)
-        ttk.Radiobutton(body, text="divers", variable=controller.entriesUserInformation[4], value="divers").grid(row=4, column=3)
+        ttk.Radiobutton(body, text="männlich", variable=controller.entriesUserInformation[3], value="maennlich").grid(row=3, column=1)
+        ttk.Radiobutton(body, text="weiblich", variable=controller.entriesUserInformation[3], value="weiblich").grid(row=3, column=2)
+        ttk.Radiobutton(body, text="divers", variable=controller.entriesUserInformation[3], value="divers").grid(row=3, column=3)
 
         #-------Control #Buttoon zur Bestätigung? ---> Drücken übergibt werte an dict? bei next button press übergabe der Werte?
         button1 = ttk.Button(control, text="zurück zu Start",
                             command=lambda: controller.showFrame(StartPage))
         button1.grid(row=0, column=0)
 
-        button2 = ttk.Button(control, text="nächste Seite",
-                            command=lambda: [controller.showFrame(PageTwo), controller.update_dict(controller.dictUserInformation, controller.entriesUserInformation)])
+        button2 = ttk.Button(control, text="Tracking starten",
+                            command=lambda: [controller.showFrame(PageTwo), controller.update_dict(controller.dictUserInformation, controller.entriesUserInformation, controller.tracking(active=True))])
         button2.grid(row=0, column=1, sticky="e")
 
+"""
 class PageTwo(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -464,8 +419,9 @@ class PageTwo(tk.Frame):
         button2 = ttk.Button(control, text="Anwendung starten",
                             command=lambda: [controller.showFrame(PageThree), controller.update_dict(controller.dictUserSettings, controller.entriesUserSettings),  controller.tracking(active=True)])
         button2.grid(row=0, column=1)
-        
-class PageThree(tk.Frame):
+"""        
+
+class PageTwo(tk.Frame):
     #3te Seite, die das Livemenü darstellen soll
     #evtl. simple Dinge live anzeigen
     #ansonsten einfach nur simple Optionen (Start oder Stopp)
@@ -473,14 +429,14 @@ class PageThree(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
        
-        header = ttk.Frame(self, relief="raised", borderwidth=5)
+        header = ttk.Frame(self)#, relief="raised", borderwidth=5)
         header.grid(row=0, column=0, sticky="nsew")
                 
-        control = ttk.Frame(self, relief="raised", borderwidth=5)
+        control = ttk.Frame(self)#, relief="raised", borderwidth=5)
         control.grid(row=1, column=0, sticky="nsew")
 
         #-------Header
-        ttk.Label(header, text="Seite 3, Livemenü").grid()
+        ttk.Label(header, text="Seite 2, Livemenü").grid()
 
 
         #-------Control
@@ -489,25 +445,25 @@ class PageThree(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.showFrame(PageFour), controller.tracking(active=False)])
+                            command=lambda: [controller.showFrame(PageThree), controller.tracking(active=False)])
         button2.grid(row=0, column=1)
-
+"""
 class PageFour(tk.Frame):
     def __init__(self, parent, controller):
             tk.Frame.__init__(self, parent)
             self.controller = controller
             
-            header = ttk.Frame(self, relief="raised", borderwidth=5)
+            header = ttk.Frame(self)#, relief="raised", borderwidth=5)
             header.grid(row=0, column=0, sticky="nsew")
 
-            body = ttk.Frame(self, relief="sunken", borderwidth=5)
+            body = ttk.Frame(self)#, relief="sunken", borderwidth=5)
             body.grid(row=1, column=0, sticky="nsew")
             
-            control = ttk.Frame(self, relief="raised", borderwidth=5)
+            control = ttk.Frame(self)#, relief="raised", borderwidth=5)
             control.grid(row=2, column=0, sticky="nsew")
 
             #----------Header
-            ttk.Label(header, text="Seite 4: Auswahlseite", font=LARGE_FONT).grid()
+            ttk.Label(header, text="Seite 3: Auswahlseite", font=LARGE_FONT).grid()
 
             #------body
             ttk.Label(body, text="Welche Inhalte sollen als Heatmap angezeigt werden?").grid(row=0, column=0)
@@ -534,8 +490,8 @@ class PageFour(tk.Frame):
                                 controller.update_dict(controller.dictExportData, controller.entriesExportData)
                                 ])
             button1.grid(row=0, column=0)
-
-class PageFive(tk.Frame):
+"""
+class PageThree(tk.Frame):
     #5te Seite des Gui, die der Darstellung der Informationen dienen soll
     #Graph Page
 
@@ -543,17 +499,17 @@ class PageFive(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         
-        header = ttk.Frame(self, relief="raised", borderwidth=5)
+        header = ttk.Frame(self)#, relief="raised", borderwidth=5)
         header.grid(row=0, column=0, columnspan=3, sticky="nsew")
 
-        body = ttk.Frame(self, relief="sunken", borderwidth=5)
+        body = ttk.Frame(self)#, relief="sunken", borderwidth=5)
         body.grid(row=1, column=0, columnspan=3, sticky="nsew")
         
-        control = ttk.Frame(self, relief="raised", borderwidth=5)
+        control = ttk.Frame(self)#, relief="raised", borderwidth=5)
         control.grid(row=2, column=0, columnspan=3 ,sticky="nsew")
 
         #----------Header
-        ttk.Label(header, text="Seite 5: Darstellung der Inhalte", font=LARGE_FONT).grid()
+        ttk.Label(header, text="Seite 3: Darstellung der Inhalte", font=LARGE_FONT).grid()
 
         #-------PLOTTING AREA-------------------
         self.background = plt.imread("backgroundHeatmap.png")
@@ -717,7 +673,7 @@ class PageFive(tk.Frame):
         
 
 
-app = App()
+app = MainWindow()
 # app.geometry()
 
 # if __name__ == "__main__":
