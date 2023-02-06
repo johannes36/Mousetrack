@@ -22,14 +22,14 @@ class View(ttk.Frame):
         self.entriesUserInformation = [tk.StringVar(), tk.StringVar(), tk.IntVar(), tk.StringVar()]
 
         self.page_parent = ttk.Frame(self)
-        self.show_pageOne()
+        self.show_startPage()
 
         #Seite 1 platzieren und Kommandos den buttons hinzufügen
         # self.page1.create_Page(master=self.page_parent)
         # self.bind_commandsToPage(self.page1)
 
 
-    def show_pageOne(self):
+    def show_startPage(self):
         self.page_parent.destroy()
 
         self.page_parent = ttk.Frame(self)
@@ -39,23 +39,27 @@ class View(ttk.Frame):
         self.page_parent = ttk.Frame(self)
         self.page_parent.grid(row=0, column=0)
 
-        parent_frame = tk.LabelFrame(master=self.page_parent, text="Seite1")
+        parent_frame = tk.LabelFrame(master=self.page_parent, text="Startseite")
         parent_frame.rowconfigure(0, weight=1)
         parent_frame.columnconfigure(0, weight=1)
         parent_frame.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         tk.Label(master=parent_frame, text="Mousetrack").grid(row=0, column=0)
-        tk.Label(master=parent_frame, text="Dies ist eine Anwendung, mit der sich das Mausverhalten\n  an einem Computer visualisieren lässt").grid(row=0, column=0)
+        tk.Label(master=parent_frame, text="""
+Willkommen! Diese Anwendung verwendet Mouse-tracking, um Ihr Nutzerverhalten zu analysieren.
+Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite wird das Tracking gestartet.
+Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beenden.
+Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=0, column=0)
             
-        ttk.Button(master=parent_frame, text="Nächste Seite", command= self.show_pageTwo).grid(row=1, column=0)
+        ttk.Button(master=parent_frame, text="Nächste Seite", command= self.show_pageOne).grid(row=1, column=0)
 
-    def show_pageTwo(self):
+    def show_pageOne(self):
         self.page_parent.destroy()
         self.page_parent = ttk.Frame(self)
         self.page_parent.grid(row=0, column=0)
 
 
-        parent_frame = tk.LabelFrame(master=self.page_parent, text="Seite2")
+        parent_frame = tk.LabelFrame(master=self.page_parent, text="Seite1")
         parent_frame.rowconfigure(0, weight=1)
         parent_frame.columnconfigure(0, weight=1)
         parent_frame.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -79,24 +83,24 @@ class View(ttk.Frame):
         ttk.Radiobutton(parent_frame, text="weiblich", variable=self.entriesUserInformation[3], value="weiblich").grid(row=4, column=2)
         ttk.Radiobutton(parent_frame, text="divers", variable=self.entriesUserInformation[3], value="divers").grid(row=4, column=3)
         
-        ttk.Button(master=parent_frame, text="Tracking starten", command=lambda: [self.show_pageThree(), self.update_dict(self.entriesUserInformation), 
+        ttk.Button(master=parent_frame, text="Tracking starten", command=lambda: [self.show_pageTwo(), self.update_dict(self.entriesUserInformation), 
         self.start_ButtonClicked()]).grid(row=5, column=1)
 
 
-    def show_pageThree(self):
+    def show_pageTwo(self):
         self.page_parent.destroy()
         self.page_parent = ttk.Frame(self)
         self.page_parent.grid(row=0, column=0)
 
-        parent_frame = tk.LabelFrame(master=self.page_parent, text="Seite3")
+        parent_frame = tk.LabelFrame(master=self.page_parent, text="Seite2")
         parent_frame.rowconfigure(0, weight=1)
         parent_frame.columnconfigure(0, weight=1)
         parent_frame.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
-        tk.Label(master=parent_frame, text="Livemenü").grid(row=0, column=0)
-        ttk.Button(master=parent_frame, text="Stoppen", command= lambda: [self.show_pageFour(), self.stop_ButtonClicked()]).grid(row=1, column=0)
+        # tk.Label(master=parent_frame, text="Livemenü").grid(row=0, column=0)
+        ttk.Button(master=parent_frame, text="Stoppen", command= lambda: [self.show_pageThree(), self.stop_ButtonClicked()]).grid(row=0, column=0)
 
-    def show_pageFour(self):
+    def show_pageThree(self):
         self.page_parent.destroy()
         self.page_parent = ttk.Frame(self)
         self.page_parent.grid(row=0, column=0)
@@ -112,7 +116,7 @@ class View(ttk.Frame):
         control_frame.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
    
-        ttk.Button(master=control_frame, text="Zurück zur Startseite", command=lambda:[self.show_pageOne()] ).grid(row=0, column=0)
+        ttk.Button(master=control_frame, text="Zurück zur Startseite", command=lambda:[self.show_startPage()] ).grid(row=0, column=0)
         ttk.Button(master=control_frame, text="Anwendung schließen und Daten speichern", command=lambda: [self.quit(), self.save_dataClicked()]).grid(row=0, column=1)
 
 

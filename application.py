@@ -9,7 +9,7 @@ from controller import Controller
 # from pageone import PageOne
 # from pagetwo import PageTwo
 
-class App(tk.Tk):
+class Application(tk.Tk):
     def __init__(self):
         super().__init__()
 
@@ -31,5 +31,5 @@ class App(tk.Tk):
         view.set_controller(controller)
 
 if __name__ == "__main__":
-    app = App()
+    app = Application()
     app.mainloop()
