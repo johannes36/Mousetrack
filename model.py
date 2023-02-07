@@ -32,7 +32,7 @@ class Model:
         self.starttime      = time.time() #evtl. auch in startTracking 
 
 
-    def on_MouseMove(self, x, y):
+    def on_mouseMove(self, x, y):
             if (x >= 0 and x < pag.size()[0]) and (y >=0 and y < pag.size()[1]):
                 print('Maus bewegt zu {0}'.format((x, y)))
                 
@@ -40,7 +40,7 @@ class Model:
               
                 
         
-    def on_MouseClick(self, x, y, button, pressed):
+    def on_mouseClick(self, x, y, button, pressed):
        
         if str(button) == 'Button.left' and pressed:
             if (x >= 0 and x < pag.size()[0]) and (y >=0 and y < pag.size()[1]):
@@ -52,13 +52,13 @@ class Model:
                
 
 
-    def start_Tracking(self):
-        self.listener = mouse.Listener(on_move=self.on_MouseMove, on_click=self.on_MouseClick)
+    def start_tracking(self):
+        self.listener = mouse.Listener(on_move=self.on_mouseMove, on_click=self.on_mouseClick)
         self.listener.start()
         pag.screenshot("backgroundHeatmap.png")  # type: ignore
 
     
-    def stop_Tracking(self):
+    def stop_tracking(self):
         self.listener.stop()
         # self.save_DataToCSV(self.dataMovement, self.dictUserInformation["info_1"]["value"], type_ofData="move")
         # self.save_DataToCSV(self.dataClicks, self.dictUserInformation["info_1"]["value"], type_ofData="click")
@@ -70,7 +70,7 @@ class Model:
             self.dictUserInformation[key]["value"] = entries[index]
 
 
-    def save_DataToCSV(self, data, nameDataset, type_ofData):
+    def save_dataToCSV(self, data, nameDataset, type_ofData):
         nameDataset = nameDataset + "_" + type_ofData + ".csv"
         with open(os.path.expanduser(nameDataset), 'w', newline='') as csvfile:
                     writer = csv.writer(csvfile, delimiter=',')

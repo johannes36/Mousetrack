@@ -17,7 +17,7 @@ class Controller:
 
     def start_Tracking(self):
         try:
-            self.model.start_Tracking()
+            self.model.start_tracking()
             print("Succes, Tracking started")
 
         except:
@@ -26,7 +26,7 @@ class Controller:
     def stop_Tracking(self):
 
         try:
-            self.model.stop_Tracking()
+            self.model.stop_tracking()
             print("Succes, Tracking stopped")
 
         except:
@@ -49,8 +49,8 @@ class Controller:
         :return:
         """
         try:
-            self.model.save_DataToCSV(self.model.dataMovement, self.model.dictUserInformation["info_1"]["value"], "move")
-            self.model.save_DataToCSV(self.model.dataClicks, self.model.dictUserInformation["info_1"]["value"], "click")
+            self.model.save_dataToCSV(self.model.dataMovement, self.model.dictUserInformation["info_1"]["value"], "move")
+            self.model.save_dataToCSV(self.model.dataClicks, self.model.dictUserInformation["info_1"]["value"], "click")
             print("Speichern erfolgreich!")
 
         except ValueError as error:

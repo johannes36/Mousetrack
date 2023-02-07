@@ -44,6 +44,8 @@ class View(ttk.Frame):
         parent_frame.columnconfigure(0, weight=1)
         parent_frame.grid(row=1, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
+        
+   
         tk.Label(master=parent_frame, text="Mousetrack").grid(row=0, column=0)
         tk.Label(master=parent_frame, text="""
 Willkommen! Diese Anwendung verwendet Mouse-tracking, um Ihr Nutzerverhalten zu analysieren.
@@ -71,7 +73,12 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=0, column=0)
         for row_index, label in enumerate(labels):
             ttk.Label(master=parent_frame, text=label).grid(row=row_index+1, column=0, sticky="w")
 
-        ttk.Entry(parent_frame, textvariable=self.entriesUserInformation[0]).grid(row=1, column=1)
+        p = ttk.Entry(parent_frame, textvariable=self.entriesUserInformation[0]).grid(row=1, column=1)
+
+        print(type(p))
+        x = type(p)
+
+        print(x) 
 
         ttk.Radiobutton(parent_frame, text='links', variable=self.entriesUserInformation[1], value='left').grid(row=2, column=1)
         ttk.Radiobutton(parent_frame, text='rechts', variable=self.entriesUserInformation[1], value='rechts').grid(row=2, column=2)
