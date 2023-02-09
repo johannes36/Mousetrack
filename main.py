@@ -24,6 +24,8 @@ import os as os
 
 import pyautogui as pag
 
+from scipy.ndimage import convolve
+
 # python -m pip --version
 #-TKINTER STYLE CONSTANTS
 LARGE_FONT= ("Verdana", 12)
@@ -102,8 +104,8 @@ class MainWindow(tk.Tk):
         self.time_click  = []
         self.heatmap_names = ["Standartheatmap", "Heatmap Mausposition", "Heatmap Klickposition", "Heatmap Geschwindigkeit", "Heatmap Beschleunigung" ]
         self.heatmap_list = []
-        self.standart_background = plt.imread("backgroundHeatmap.png")
-        self.random_heatmap = np.random.randint(low=0, high=200, size=(np.shape(self.standart_background)[0], np.shape(self.standart_background)[1]))
+        self.standart_background = plt.imread("old_backgroundHeatmap.png")
+        self.random_heatmap = np.random.randint(low=0, high=50, size=(np.shape(self.standart_background)[0], np.shape(self.standart_background)[1]))
         
         print("Form von shape [0]: " + str(np.shape(self.standart_background)[0]))
         print("Form von shape [1]: " + str(np.shape(self.standart_background)[1]))
@@ -178,6 +180,35 @@ class MainWindow(tk.Tk):
                 self.click_y.append(y)
                 self.time_click.append(time.time()- self.starttime)
 
+    def start_tracking(self):
+        self.listener = mouse.Listener(on_move=self.onMouseMove, on_click=self.onMouseClick)
+        self.listener.start()
+        
+        self.click_x = []
+        self.click_y = []
+        self.time_click = []
+
+
+        self.starttime = time.time()
+        pag.screenshot("old_backgroundHeatmap.png")  # type: ignore
+
+    
+    def stop_tracking(self):
+        self.listener.stop()
+        self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
+        self.map_dict["map_1"]["value"]  = self.random_heatmap
+        self.map_dict["map_2"]["value"]  = self.calculate_heatmap(self.move_x, self.move_y)
+        self.map_dict["map_3"]["value"]  = self.calculate_heatmap(self.click_x, self.click_y)
+           
+        self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
+        self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
+
+        self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
+            
+        self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
+        self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
+                
+                
     def tracking(self, active):
         #Hieraus 2 Funktionen machen -> On Start App und On Stop App?
         
@@ -186,7 +217,9 @@ class MainWindow(tk.Tk):
             self.listener.start()
             self.starttime = time.time()
             print("started")
-            
+
+            self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
+                
             pag.screenshot("backgroundHeatmap.png")  # type: ignore
 
         else:
@@ -197,26 +230,15 @@ class MainWindow(tk.Tk):
             #lieber erst in Page5 einlesen?
             # self.new_background = plt.imread("backgroundHeatmap")
 
-            #Berechnungen weiter unten ausführen, z.b Klasse 5????    
+            
             self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
-            self.acc_x, self.acc_y   = self.calculate_differentiation(self.velo_x, self.velo_y, self.time_move)
-
-            # for key in self.map_dict:
-            #     if self.dictUserSettings[key]["value"]:
-                
-            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
             self.map_dict["map_1"]["value"]  = self.random_heatmap
             self.map_dict["map_2"]["value"]  = self.calculate_heatmap(self.move_x, self.move_y)
             self.map_dict["map_3"]["value"]  = self.calculate_heatmap(self.click_x, self.click_y)
-            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
-            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
-            # self.map_dict["map_1"]["value"]  = np.random.randint(low=0, high=200, size=(200, 250))
-
+           
 
             self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
             self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
-
-            print(self.heatmap_move)
             #Heatmap Berechnung für Velo und Acc anpassen
             # self.heatmap_velo   = self.calculate_heatmap(self.velo_x, self.velo_y)
             # self.heatmap_acc   = self.calculate_heatmap(self.acc_x, self.acc_y)
@@ -260,7 +282,16 @@ class MainWindow(tk.Tk):
 
         # print(np.max(np.max(heatmap)))
 
-        return heatmap 
+
+        structuring_element = np.array([[1, 1, 1, 1, 1],
+                                        [1, 1, 1, 1, 1],
+                                        [1, 1, 1, 1, 1],
+                                        [1, 1, 1, 1, 1],
+                                        [1, 1, 1, 1, 1]])
+
+        filtered_heatmap = convolve(heatmap, structuring_element)
+
+        return filtered_heatmap 
     
 
     def writeCSVFile(self, filenamePath, lines, delimiter=','):
@@ -307,7 +338,7 @@ class StartPage(tk.Frame):
         #----------body statt label tk.Text??!!
         label_body = ttk.Label(body, text="""Willkommen! Diese Anwendung verwendet Mouse-tracking,
 um Ihr Nutzerverhalten zu analysieren. Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite
-wird das Tracking gestartet. Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beennde.
+wird das Tracking gestartet. Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beenden.
 Seite 3 dient der Visualisierung der Ergebnisse.
 """)
         label_body.grid()
@@ -375,7 +406,7 @@ class PageOne(tk.Frame):
         button1.grid(row=0, column=0)
 
         button2 = ttk.Button(control, text="Tracking starten",
-                            command=lambda: [controller.showFrame(PageTwo), controller.update_dict(controller.dictUserInformation, controller.entriesUserInformation, controller.tracking(active=True))])
+                            command=lambda: [controller.showFrame(PageTwo), controller.update_dict(controller.dictUserInformation, controller.entriesUserInformation), controller.start_tracking()])
         button2.grid(row=0, column=1, sticky="e")
 
 """
@@ -442,11 +473,11 @@ class PageTwo(tk.Frame):
         #-------Control
         button1 = ttk.Button(control, text="Anwendung pausieren")#,
                             #command=lambda: controller.showFrame(PageThree))
-        button1.grid(row=0, column=0)
+        # button1.grid(row=0, column=1)
 
-        button2 = ttk.Button(control, text="Tracking stoppen und  zu Auswertung",
-                            command=lambda: [controller.showFrame(PageThree), controller.tracking(active=False)])
-        button2.grid(row=0, column=1)
+        button2 = ttk.Button(control, text="Tracking stoppen",
+                            command=lambda: [controller.showFrame(PageThree), controller.stop_tracking()])
+        button2.grid(row=0, column=0)
 """
 class PageFour(tk.Frame):
     def __init__(self, parent, controller):
@@ -512,7 +543,7 @@ class PageThree(tk.Frame):
         ttk.Label(header, text="Seite 3: Darstellung der Inhalte", font=LARGE_FONT).grid()
 
         #-------PLOTTING AREA-------------------
-        self.background = plt.imread("backgroundHeatmap.png")
+        self.background = plt.imread("old_backgroundHeatmap.png")
 
         colormap = mpl.colormaps['YlOrRd']  # type: ignore
         newcolors = colormap(np.linspace(0.3, 1, 256))
@@ -521,34 +552,38 @@ class PageThree(tk.Frame):
         # cmap = cm.get_cmap("YlOrRd", 100)
         # self.newcmap = ListedColormap(cmap(np.linspace(0, 0.7, 100)))  # type: ignore
         self.newcmap = ListedColormap(newcolors)  # type: ignore
-        print("in init: " + str(self.newcmap))
+        
+
         #creating a figure
-        fig = plt.figure()
-        #adding an axes object
-        ax = fig.add_subplot() 
+        fig, ax = plt.subplots()        #adding an axes object
+        
         ax.set_title("Heatmap aus Zufallszahlen")
         #plotting der Heatmap/// Enstrpicht heatmap_list[0]
         
-        #ax.imshow(.....)
-        plt.imshow(controller.standart_background)
-        plt.pcolormesh(controller.random_heatmap, alpha=0.8, cmap=self.newcmap)
+        ax.set_aspect("equal")
+
+
+        ax.imshow(self.background)
+
+
+        ax.imshow(controller.random_heatmap, cmap='hot' , alpha=0.7)
         
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.25)
+        # divider = make_axes_locatable(ax)
+        # cax = divider.append_axes("right", size="5%", pad=0.25)
 
-        plt.colorbar(cax=cax)
+        # plt.colorbar(cax=cax)
 
-        #-------TKINTER AREA ---------creating a Tkinter canvas
+        #shape von Hintergrund und Heatmap müssen übereinstimmen
+        #-------TKINTER AREA ---------creating a Tkinter canvas        
         canvas = FigureCanvasTkAgg(fig, master=body)
         canvas.draw()
-        #canvas in body platzieren
-        canvas.get_tk_widget().pack()
-        # creating the Matplotlib toolbar
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+        # NavigationToolbar2Tk hinzufügen
         toolbar = NavigationToolbar2Tk(canvas, body)
-        toolbar.update()            
-        # placing the toolbar on the Tkinter window
-        canvas.get_tk_widget().pack
-       
+        toolbar.update()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        
         # ttk.Button(body, text="Zeige Heatmap der Mauspostion", command= lambda:
         #                     self.show_heatmap(controller.heatmap_move, parent=canvas_parent, name="Heatmap Mausposition", figure=fig)).grid(row=1, column=0)
         # ttk.Button(body, text="Zeige Heatmap der Mausklicks", command= lambda:
@@ -583,13 +618,12 @@ class PageThree(tk.Frame):
         # axes.imshow(dict["map_2"]["value"], cmap='hot', interpolation='nearest')
 
 
-        
+        self.background = plt.imread("old_backgroundHeatmap.png")
 
         axes.clear()
         axes.set_title(name_list[1])
         axes.imshow(self.background)
-        plt.pcolormesh(value_list[1], alpha=0.8, cmap=self.newcmap)
-        print("in ShowHeat: " + str(self.newcmap))
+        axes.imshow(value_list[1], cmap='hot' , alpha=0.7)
 
 
         parent_canvas.draw()
@@ -622,10 +656,9 @@ class PageThree(tk.Frame):
         
         axes.clear()
         axes.set_title(name_list[seite])
-        # plt.imshow(self.background)
         axes.imshow(self.background)
-        plt.pcolormesh(value_list[seite], alpha=0.8, cmap=self.newcmap)
-        print("in ShowNext: " + str(self.newcmap))
+        axes.imshow(value_list[seite], cmap='hot' , alpha=0.7)
+
 
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -644,18 +677,12 @@ class PageThree(tk.Frame):
         
     def showPreviousHeatmap(self, axes, parent_canvas, parent_frame, value_list, name_list, seite, controller):
         
-        # axes.clear()
-        # axes.set_title(dict["map_1"]["title"])
-        # axes.imshow(dict["map_1"]["value"], cmap='hot', interpolation='nearest')
-        # parent_canvas.draw()
-        # parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         axes.clear()
         axes.set_title(name_list[seite])
-        #plt.imshow(self.background)
         axes.imshow(self.background)
-        plt.pcolormesh(value_list[seite], alpha=0.8, cmap=self.newcmap)
-        print("in ShowPrevious: " + str(self.newcmap))
-        
+        axes.imshow(value_list[seite], cmap='hot' , alpha=0.7)
+
+
         parent_canvas.draw()
         parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
