@@ -128,30 +128,14 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=0, column=0)
 
 
         heatmap_movement = self.controller.get_Heatmap(nameHeatmap = "Heatmap Bewegung")
-        # heatmap_clicks = self.controller.get_Heatmap(nameHeatmap = "Heatmap Klicks")
+        heatmap_clicks = self.controller.get_Heatmap(nameHeatmap = "Heatmap Klicks")
         
         #-------PLOTTING AREA-------------------
         #------COLORMAP
 
-        # colormap = mpl.colormaps['YlOrRd']  # type: ignore
-        # newcolors = colormap(np.linspace(0.3, 1, 256))
-        # white = np.array([1, 1, 1, 1])
-        # newcolors[:25, :] = white
-
-        
-        # cmap = cm.get_cmap("YlOrRd", 100)
-        # newcmap = ListedColormap(cmap(np.linspace(0, 0.7, 100)))  # type: ignore
-        # newcmap = ListedColormap(newcolors)  # type: ignore
-
-
-        
-        
-
         # Figure und Axes erstellen
         fig, ax = plt.subplots()
 
-
-        
         # Untergrundbild hinzufügen
         background_heatmap = plt.imread("backgroundHeatmap.png")      
         ax.imshow(background_heatmap)

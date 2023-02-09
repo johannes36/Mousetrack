@@ -55,6 +55,9 @@ class Model:
     def start_tracking(self):
         self.listener = mouse.Listener(on_move=self.on_mouseMove, on_click=self.on_mouseClick)
         self.listener.start()
+        self.dataMovement   = np.zeros(shape=(0,3)) # Achtung, erster Eintrag ist leer!
+        self.dataClicks     = np.zeros(shape=(0,3))
+        self.starttime      = time.time()
         pag.screenshot("backgroundHeatmap.png")  # type: ignore
 
     
