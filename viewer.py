@@ -42,7 +42,7 @@ class View(ttk.Frame):
 
         
    
-        tk.Label(master=parent_frame, text="Mousetrack").grid(row=0, column=0)
+        # tk.Label(master=parent_frame, text="Startseite").grid(row=0, column=0)
         tk.Label(master=parent_frame, text="""
 Willkommen! Diese Anwendung verwendet Mouse-tracking, um Ihr Nutzerverhalten zu analysieren.
 Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite wird das Tracking gestartet.
