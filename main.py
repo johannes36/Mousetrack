@@ -93,7 +93,6 @@ class MainWindow(tk.Tk):
         #-------Lists to track behaviour
         self.move_x      = []
         self.move_y      = []
-        self.move        = []
         self.click_x     = [] 
         self.click_y     = []
         self.velo_x      = []
@@ -184,10 +183,17 @@ class MainWindow(tk.Tk):
         self.listener = mouse.Listener(on_move=self.onMouseMove, on_click=self.onMouseClick)
         self.listener.start()
         
-        self.click_x = []
-        self.click_y = []
-        self.time_click = []
-
+        self.move_x      = []
+        self.move_y      = []
+        self.click_x     = [] 
+        self.click_y     = []
+        self.velo_x      = []
+        self.velo_y      = []
+        self.acc_x       = []  
+        self.acc_y       = []  
+        self.time_move   = [] 
+        self.time_click  = []
+       
 
         self.starttime = time.time()
         pag.screenshot("old_backgroundHeatmap.png")  # type: ignore
@@ -209,42 +215,7 @@ class MainWindow(tk.Tk):
         self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
                 
                 
-    def tracking(self, active):
-        #Hieraus 2 Funktionen machen -> On Start App und On Stop App?
-        
-        if active:
-            self.listener = mouse.Listener(on_move=self.onMouseMove, on_click=self.onMouseClick)
-            self.listener.start()
-            self.starttime = time.time()
-            print("started")
-
-            self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
-                
-            pag.screenshot("backgroundHeatmap.png")  # type: ignore
-
-        else:
-            print("stopped")
-            self.listener.stop()
-            #self.finish_dict()
-
-            #lieber erst in Page5 einlesen?
-            # self.new_background = plt.imread("backgroundHeatmap")
-
-            
-            self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
-            self.map_dict["map_1"]["value"]  = self.random_heatmap
-            self.map_dict["map_2"]["value"]  = self.calculate_heatmap(self.move_x, self.move_y)
-            self.map_dict["map_3"]["value"]  = self.calculate_heatmap(self.click_x, self.click_y)
-           
-
-            self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
-            self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
-            #Heatmap Berechnung für Velo und Acc anpassen
-            # self.heatmap_velo   = self.calculate_heatmap(self.velo_x, self.velo_y)
-            # self.heatmap_acc   = self.calculate_heatmap(self.acc_x, self.acc_y)
     
-    
-            self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
     
     def update_dict(self, dict, entries):
         for index, key in enumerate (dict):
@@ -336,9 +307,10 @@ class StartPage(tk.Frame):
         label_header.grid()
 
         #----------body statt label tk.Text??!!
-        label_body = ttk.Label(body, text="""Willkommen! Diese Anwendung verwendet Mouse-tracking,
-um Ihr Nutzerverhalten zu analysieren. Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite
-wird das Tracking gestartet. Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beenden.
+        label_body = ttk.Label(body, text="""Willkommen! 
+Diese Anwendung verwendet Mouse-Tracking, um Ihr Nutzerverhalten zu analysieren.
+Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite wird das Tracking gestartet.
+Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beenden.
 Seite 3 dient der Visualisierung der Ergebnisse.
 """)
         label_body.grid()
@@ -467,7 +439,7 @@ class PageTwo(tk.Frame):
         control.grid(row=1, column=0, sticky="nsew")
 
         #-------Header
-        ttk.Label(header, text="Seite 2, Livemenü").grid()
+        ttk.Label(header, text="Seite 2").grid()
 
 
         #-------Control
@@ -654,6 +626,8 @@ class PageThree(tk.Frame):
         # parent_canvas.draw()
         # parent_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         
+        self.background = plt.imread("old_backgroundHeatmap.png")
+
         axes.clear()
         axes.set_title(name_list[seite])
         axes.imshow(self.background)
@@ -676,7 +650,9 @@ class PageThree(tk.Frame):
             self.button_forward.grid(row=0, column=2)
         
     def showPreviousHeatmap(self, axes, parent_canvas, parent_frame, value_list, name_list, seite, controller):
-        
+                
+        self.background = plt.imread("old_backgroundHeatmap.png")
+
         axes.clear()
         axes.set_title(name_list[seite])
         axes.imshow(self.background)
