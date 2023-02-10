@@ -29,7 +29,7 @@ class Model:
         
         self.dataMovement   = np.zeros(shape=(0,3)) # Achtung, erster Eintrag ist leer!
         self.dataClicks     = np.zeros(shape=(0,3))
-        self.starttime      = time.time() #evtl. auch in startTracking 
+        
 
 
     def on_mouseMove(self, x, y):
@@ -57,7 +57,8 @@ class Model:
         self.listener.start()
         self.dataMovement   = np.zeros(shape=(0,3)) # Achtung, erster Eintrag ist leer!
         self.dataClicks     = np.zeros(shape=(0,3))
-        self.starttime      = time.time()
+        self.starttime      = time.time() #evtl. auch in startTracking 
+        
         pag.screenshot("backgroundHeatmap.png")  # type: ignore
 
     

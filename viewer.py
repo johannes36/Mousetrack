@@ -1,18 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 
-from PIL import Image, ImageTk
-
-import numpy as np
-
 import matplotlib as mpl
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)  # type: ignore
-from matplotlib import cm
-from matplotlib.figure import Figure
-from matplotlib.colors import ListedColormap
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+# from matplotlib import cm
+# from matplotlib.figure import Figure
+# from matplotlib.colors import ListedColormap
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class View(ttk.Frame):
     def __init__(self, parent):
@@ -146,11 +142,9 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=0, column=0)
         # #plotting der Heatmap/// Enstrpicht heatmap_list[0]
         
         ax.imshow(heatmap_movement, cmap='hot' , alpha=0.7) #cmap=newcmap
-        # plt.pcolormesh(heatmap_movement, alpha=0.8, cmap=newcmap) #vmin, vmax -> range of colornap
-
-
+        # ax.imshow(heatmap_clicks, cmap='hot' , alpha=0.7) #cmap=newcmap
+        
         #Einstellungen des Plots:
-
         # plt.colorbar()
         
         #shape von Hintergrund und Heatmap müssen übereinstimmen
