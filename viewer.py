@@ -28,7 +28,7 @@ class View(ttk.Frame):
 
     def show_startPage(self):
         self.page_parent.destroy()
-        self.page_parent = ttk.Frame(self)
+        self.page_parent = ttk.Frame(self, borderwidth=10, relief="sunken")
         self.page_parent.grid(row=0, column=0)
         self.page_parent.rowconfigure(0, weight=1)
         self.page_parent.columnconfigure(0, weight=1)
@@ -46,7 +46,7 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=1, column=0)
 
     def show_pageOne(self):
         self.page_parent.destroy()
-        self.page_parent = ttk.Frame(self)
+        self.page_parent = ttk.Frame(self, borderwidth=10, relief="sunken")
         self.page_parent.grid(row=0, column=0)
         self.page_parent.rowconfigure(0, weight=1)
         self.page_parent.columnconfigure(0, weight=1)
@@ -81,7 +81,7 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=1, column=0)
 
     def show_pageTwo(self):
         self.page_parent.destroy()
-        self.page_parent = ttk.Frame(self)
+        self.page_parent = ttk.Frame(self, borderwidth=10, relief="sunken")
         self.page_parent.grid(row=0, column=0)
         self.page_parent.rowconfigure(0, weight=1)
         self.page_parent.columnconfigure(0, weight=1)
@@ -92,7 +92,7 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=1, column=0)
 
     def show_pageThree(self):
         self.page_parent.destroy()
-        self.page_parent = ttk.Frame(self)
+        self.page_parent = ttk.Frame(self, borderwidth=10, relief="sunken")
         self.page_parent.grid(row=0, column=0)
         self.page_parent.rowconfigure(0, weight=1)
         self.page_parent.columnconfigure(0, weight=1)
