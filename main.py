@@ -531,7 +531,7 @@ class PageThree(tk.Frame):
         self.controller = controller
         
         header = ttk.Frame(self)#, relief="raised", borderwidth=5)
-        header.grid(row=0, column=0, columnspan=3, sticky="nsew")
+        header.grid(row=0, column=1, columnspan=3, sticky="nsew")
 
         body = ttk.Frame(self)#, relief="sunken", borderwidth=5)
         body.grid(row=1, column=0, columnspan=3, sticky="nsew")
@@ -540,7 +540,7 @@ class PageThree(tk.Frame):
         control.grid(row=2, column=0, columnspan=3 ,sticky="nsew")
 
         #----------Header
-        ttk.Label(header, text="Seite 3: Darstellung der Inhalte", font=LARGE_FONT).grid()
+        ttk.Label(header, text="Seite 3: Analyse-Bereich", font=LARGE_FONT).grid(row=0, column=2)
 
         #-------PLOTTING AREA-------------------
         self.background = plt.imread("old_backgroundHeatmap.png")
