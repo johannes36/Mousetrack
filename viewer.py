@@ -88,7 +88,7 @@ Seite 3 dient der Visualisierung der Ergebnisse.""").grid(row=1, column=0)
 
         ttk.Label(master=self.page_parent, text="Seite 2").grid(row=0, column=0) #, font=LARGE_FONT
         # tk.Label(master=parent_frame, text="Livemenü").grid(row=0, column=0)
-        ttk.Button(master=self.page_parent, text="Stoppen", command= lambda: [self.show_pageThree(), self.stop_ButtonClicked()]).grid(row=1, column=0)
+        ttk.Button(master=self.page_parent, text="Tracking stoppen", command= lambda: [self.show_pageThree(), self.stop_ButtonClicked()]).grid(row=1, column=0)
 
     def show_pageThree(self):
         self.page_parent.destroy()
