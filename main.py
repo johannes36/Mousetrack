@@ -91,6 +91,12 @@ class MainWindow(tk.Tk):
 
         #--------------BEHAVIOUR VARIRABLEN
         #-------Lists to track behaviour
+        self.dataMovement   = np.zeros(shape=(0,3)) # Achtung, erster Eintrag ist leer!
+        self.dataClicks     = np.zeros(shape=(0,3))
+        
+        
+        
+        
         self.move_x      = []
         self.move_y      = []
         self.click_x     = [] 
@@ -163,57 +169,56 @@ class MainWindow(tk.Tk):
         #negative Werte weglassem
         #nur Pixelpositionen aufnehmen, die Form 1080x1920 erfüllen
         
-        if (x >= 0 and x < np.shape(self.standart_background)[1]) and (y >=0 and y < np.shape(self.standart_background)[0]):
-            print('Maus bewegt zu {0}'.format((x, y)))
-            self.move_x.append(x)
-            self.move_y.append(y)
-            self.time_move.append(time.time() - self.starttime)
+        if (x >= 0 and x < pag.size()[0]) and (y >=0 and y < pag.size()[1]):
+                print('Maus bewegt zu {0}'.format((x, y)))
+                
+                self.dataMovement = np.vstack([self.dataMovement, [x, y, time.time()-self.starttime]])  # type: ignore
+
 
     def onMouseClick(self, x, y, button, pressed):
-        print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
-        print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
-
         if str(button) == 'Button.left' and pressed:
-            if (x >= 0 and x < 1080) and (y >=0 and y < 1920):
-                self.click_x.append(x)
-                self.click_y.append(y)
-                self.time_click.append(time.time()- self.starttime)
+            if (x >= 0 and x < pag.size()[0]) and (y >=0 and y < pag.size()[1]):
+                
+                print('{0} at {1}'.format('Pressed' if pressed else 'Released', (x, y)))
+                print('{0}, {1} at {2}'.format(button, 'Pressed' if pressed else 'Released', (x, y)))
 
+                self.dataClicks = np.vstack([self.dataClicks, [x, y, time.time()-self.starttime]])  # type: ignore
+        
     def start_tracking(self):
         self.listener = mouse.Listener(on_move=self.onMouseMove, on_click=self.onMouseClick)
         self.listener.start()
         
-        self.move_x      = []
-        self.move_y      = []
-        self.click_x     = [] 
-        self.click_y     = []
-        self.velo_x      = []
-        self.velo_y      = []
-        self.acc_x       = []  
-        self.acc_y       = []  
-        self.time_move   = [] 
-        self.time_click  = []
+        self.dataMovement   = np.zeros(shape=(0,3)) # Achtung, erster Eintrag ist leer!
+        self.dataClicks     = np.zeros(shape=(0,3))
+        self.starttime = time.time()
+
+        # self.move_x      = []
+        # self.move_y      = []
+        # self.click_x     = [] 
+        # self.click_y     = []
+        # self.velo_x      = []
+        # self.velo_y      = []
+        # self.acc_x       = []  
+        # self.acc_y       = []  
+        # self.time_move   = [] 
+        # self.time_click  = []
        
 
-        self.starttime = time.time()
+        
         pag.screenshot("old_backgroundHeatmap.png")  # type: ignore
 
     
     def stop_tracking(self):
         self.listener.stop()
-        self.velo_x, self.velo_y = self.calculate_differentiation(self.move_x, self.move_y, self.time_move)
+        self.velo_x, self.velo_y = self.calculate_differentiation(self.dataMovement)
         self.map_dict["map_1"]["value"]  = self.random_heatmap
-        self.map_dict["map_2"]["value"]  = self.calculate_heatmap(self.move_x, self.move_y)
-        self.map_dict["map_3"]["value"]  = self.calculate_heatmap(self.click_x, self.click_y)
+        self.map_dict["map_2"]["value"]  = self.calculate_heatmap(self.dataMovement)
+        self.map_dict["map_3"]["value"]  = self.calculate_heatmap(self.dataClicks)
            
-        self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
-        self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
+        self.heatmap_move   = self.calculate_heatmap(self.dataMovement)
+        self.heatmap_click  = self.calculate_heatmap(self.dataClicks)
 
         self.heatmap_list  = [self.random_heatmap, self.heatmap_move, self.heatmap_click]#, self.heatmap_velo, self.heatmap_acc]
-            
-        self.heatmap_move   = self.calculate_heatmap(self.move_x, self.move_y)
-        self.heatmap_click  = self.calculate_heatmap(self.click_x, self.click_y)
-                
                 
     
     
@@ -222,7 +227,11 @@ class MainWindow(tk.Tk):
             dict[key]["value"] = entries[index].get()
         print(dict)
     
-    def calculate_differentiation(self, data_x, data_y, time_event): #acceleration = veränderung von v
+    def calculate_differentiation(self, data): #acceleration = veränderung von v
+        data_x = data[:,1]
+        data_y = data[:,0]
+        time_event = data[:,2]
+
         diff_x = [] 
         diff_y = []
         
@@ -242,18 +251,37 @@ class MainWindow(tk.Tk):
 
         return diff_x, diff_y
 
-    def calculate_heatmap(self, x_Data, y_Data):
-
+    def calculate_heatmap(self, data):
         # heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
-        heatmap = np.zeros(shape=(np.shape(self.standart_background)[0], np.shape(self.standart_background)[1]))
-        print("Form der Heatmap: " + str(np.shape(heatmap)))
-        print("Länge des x_Data Vektor: " + str(len(x_Data)))    
+        
+        print("function started")
+        x_Data = data[:,1]
+        y_Data = data[:,0]
+        heatmap = np.zeros(shape=(pag.size()[1], pag.size()[0]), dtype=int)
+
+        
+        print("Zeros erstellt")
+        # print("x Länge:")
+        # print(np.max(x_Data))
+        # print("y Länge:")
+        # print(np.max(y_Data))
+        # print("Shape mAp:")
+        print("erlaubte shape:")
+        print(np.shape(heatmap))
+        
+        print("i sollte sein:")
+        print(len(x_Data))
+        #Schleife über alle Positionen, die aufgenommen wurden
         for i in range(len(x_Data)):
-            heatmap[y_Data[i] - 1, x_Data[i] - 1] = heatmap[y_Data[i] - 1, x_Data[i] - 1] + 1
+            
+            heatmap[int(x_Data[i]) - 1, int(y_Data[i]) - 1] = heatmap[int(x_Data[i]) - 1, int(y_Data[i]) - 1] + 1
+            
+        #manipulation der Heatmap mit Methode um umliegende Pixel auch hohe Werte zuzuweisen
+        # Gauss Filter?
+        gauss_filter = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]]) / 16
 
-        # print(np.max(np.max(heatmap)))
-
-
+        # Bildbearbeitung mithilfe Dilatation
+        #Strukturelement: wie funktioniert convolve genau
         structuring_element = np.array([[1, 1, 1, 1, 1],
                                         [1, 1, 1, 1, 1],
                                         [1, 1, 1, 1, 1],
@@ -262,8 +290,8 @@ class MainWindow(tk.Tk):
 
         filtered_heatmap = convolve(heatmap, structuring_element)
 
-        return filtered_heatmap 
-    
+        return filtered_heatmap
+
 
     def writeCSVFile(self, filenamePath, lines, delimiter=','):
         with open(os.path.expanduser(filenamePath), 'w', newline='') as csvfile:
@@ -309,7 +337,7 @@ class StartPage(tk.Frame):
         #----------body statt label tk.Text??!!
         label_body = ttk.Label(body, text="""Willkommen! 
 Diese Anwendung verwendet Mouse-Tracking, um Ihr Nutzerverhalten zu analysieren.
-Seite 1 dient der Eingabe von Nutzerinformationen. Über diese Seite wird das Tracking gestartet.
+Seite 1 bietet die Möglichkeit, Nutzerinformationen anzugeben. Über diese Seite wird das Tracking gestartet.
 Seite 2 wird während des Trackings angezeigt und ermöglicht es, das Tracking zu beenden.
 Seite 3 dient der Visualisierung der Ergebnisse.
 """)
