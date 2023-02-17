@@ -15,24 +15,25 @@ class Controller:
         except:
             print("Updaten des dict nicht möglich")
 
-    def start_Tracking(self):
+    def start_tracking(self):
         try:
-            self.model.start_Tracking()
+            self.model.start_tracking()
             print("Succes, Tracking started")
 
         except:
             print("Tracking kann nicht gestartet werden")
 
-    def stop_Tracking(self):
+    def stop_tracking(self):
 
         try:
-            self.model.stop_Tracking()
+            self.model.stop_tracking()
             print("Succes, Tracking stopped")
 
         except:
             print("Tracking kann nicht gestoppt werden")
 
-    def get_Heatmap(self, nameHeatmap):
+    def get_heatmap(self, nameHeatmap):
+        print(nameHeatmap)
         try:
             if nameHeatmap == "Heatmap Bewegung":
                 return self.model.calculate_heatmap(self.model.dataMovement)
@@ -41,16 +42,15 @@ class Controller:
         except:
             print("Zugriff auf Heatmap nicht möglich" + nameHeatmap)
 
-    def save_DataToCSV(self, nameDataset):
+    def save_dataToCSV(self):#, nameDataset):
         """
         Save the email
         :param name Dataset:
         :return:
         """
         try:
-            # self.model.nameDataset = nameDataset
-            self.model.save_DataToCSV(self.model.dataMovement, nameDataset)
-            #self.view.show_success(f'The email {email} saved!')
+            self.model.save_dataToCSV(self.model.dataMovement, self.model.dictUserInformation["info_1"]["value"], "move")
+            self.model.save_dataToCSV(self.model.dataClicks, self.model.dictUserInformation["info_1"]["value"], "click")
             print("Speichern erfolgreich!")
 
         except ValueError as error:

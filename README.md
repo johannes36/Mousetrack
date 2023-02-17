@@ -2,24 +2,17 @@
 
 Version 1.0.0
     grundlegender Code erstellt:
-        simples GUI
+        einfache GUI, mit Buttons ohne Funktionalität
 
-Version 1.0.1
-    basic code finished
-    
-    Overview:
-        basic GUI existing:
-            Start and Stop Button with function
-        
-        pynput included
-            start pressed Tracking starts
-            stop pressed tracking stops completely (cannot be restarted cause "threads can only be started once")
-
+Version 1.0.1            
+        pynput eingefügt
+            start button startet Anwendung
+            stopp button stoppt Anwendung (kein Restart möglich(Threading))
 Version 1.0.2
-    sequence changed (functions before "main" code)
+    Änderung der Code Reihenfolge
 
 Version 1.0.3
-    movement and click data are saved in txt-File
+    Bewegungs und Klick Daten werden in txt-File gespeichert
     Zeitpunkt, relativ zum Start des Listeners, an denen das Event stattfindet ist gespeichert
 
 Version 1.0.4
@@ -28,7 +21,7 @@ Version 1.0.4
         2. Heatmap der click data
 
 Version 1.0.5
-    Velocity is calculated
+    Geschwindigkeit wird berechnet
     1. in direction x and y
 
 Version 1.0.6
@@ -45,7 +38,7 @@ Version 1.0.7
 
 Version 1.0.8
     1.Threading
-        Listener kann multiple Times gestartet werden
+        Listener kann mehrere Male gestartet werden
     2.Heatmap
         zwischen Heatmaps der Moves und Klicks kann über Button gewechselt 
         
@@ -53,18 +46,5 @@ Version 1.0.9
     1. Tracking nur auf einem Bildschirm
         Heatmap wird auf Screenshot des Bildschirms erstellt
 
-
-                # Zukunft: 
-                3. Seite 3 nach Ende des Trackings, die die Möglichkeit bietet die getrackten Parameter darzustellen (Heatmap,...) 
-                Es gibt nun die Möglickeit genau auszuwählen, was mit den Daten im Nachhinein geschieht
-                # 3. Live Seite während des Trackings mit Timer und Stop
-                4. Heatmap Colorbar anpassen
-                    Heatmap verschönern
-                5. Seiten verschönern
-                6. Refactoring
-                    -Klasse erstellen, die mehrere Seiten nutzen können
-                    - Methode zum Anwendungsstart 
-                    - Gedanken um App schlanker zu gestalten und main zu füllen
-                        in main sollten Variablen und co definiert und deklariert werden. 
-                        Klassen sollten als Unterstützung dienen
-                    . Methode zum Seitenwechsel (Klasse APP-Control)
+Version 1.1.0
+    1. Bewegunstrajektorie als Heatmap erkennbar
