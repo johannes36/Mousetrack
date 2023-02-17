@@ -23,14 +23,12 @@ Version 1.0.4
 Version 1.0.5
     Geschwindigkeit wird berechnet
     1. in direction x and y
+    Geschwindigkeitsberechnung
 
 Version 1.0.6
     die zuvor hinzugefügten Features werden in ein GUI eingefügt
-        1. Seite 1 zur Informationsabfrage
-        2. Seite 2 zum Vornehmen von Einstellungen und Starten der Anwendung
-        3. Seite 3
-        4. Seite 4
-
+        1. Seite 1 zur Informationsabfrage Seite 3
+        
 Version 1.0.7
     1. Quit Button hinzugefügt
     2. Heatmap mit Zufallszahlen wird in GUI Seite 5 eingebunden
