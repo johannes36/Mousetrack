@@ -15,7 +15,7 @@ class Controller:
         except:
             print("Updaten des dict nicht möglich")
 
-    def start_Tracking(self):
+    def start_tracking(self):
         try:
             self.model.start_tracking()
             print("Succes, Tracking started")
@@ -23,7 +23,7 @@ class Controller:
         except:
             print("Tracking kann nicht gestartet werden")
 
-    def stop_Tracking(self):
+    def stop_tracking(self):
 
         try:
             self.model.stop_tracking()
@@ -32,7 +32,7 @@ class Controller:
         except:
             print("Tracking kann nicht gestoppt werden")
 
-    def get_Heatmap(self, nameHeatmap):
+    def get_heatmap(self, nameHeatmap):
         print(nameHeatmap)
         try:
             if nameHeatmap == "Heatmap Bewegung":
@@ -42,7 +42,7 @@ class Controller:
         except:
             print("Zugriff auf Heatmap nicht möglich" + nameHeatmap)
 
-    def save_DataToCSV(self):#, nameDataset):
+    def save_dataToCSV(self):#, nameDataset):
         """
         Save the email
         :param name Dataset:

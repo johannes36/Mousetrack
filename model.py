@@ -57,19 +57,15 @@ class Model:
         self.listener.start()
         self.dataMovement   = np.zeros(shape=(0,3)) # Achtung, erster Eintrag ist leer!
         self.dataClicks     = np.zeros(shape=(0,3))
-        self.starttime      = time.time() #evtl. auch in startTracking 
+        self.starttime      = time.time() 
         
         pag.screenshot("backgroundHeatmap.png")  # type: ignore
 
     
     def stop_tracking(self):
         self.listener.stop()
-        # self.save_DataToCSV(self.dataMovement, self.dictUserInformation["info_1"]["value"], type_ofData="move")
-        # self.save_DataToCSV(self.dataClicks, self.dictUserInformation["info_1"]["value"], type_ofData="click")
         
     def update_dict(self, entries):
-        print(pag.size()[1])
-        print(pag.size()[0])
         for index, key in enumerate (self.dictUserInformation):
             self.dictUserInformation[key]["value"] = entries[index]
 
@@ -83,36 +79,16 @@ class Model:
 
     
     def calculate_heatmap(self, data):
-        # heatmap = np.zeros(shape=(max(y_Data), max(x_Data)))
         
         print("function started")
         x_Data = data[:,1]
         y_Data = data[:,0]
         heatmap = np.zeros(shape=(pag.size()[1], pag.size()[0]), dtype=int)
 
-        
-        print("Zeros erstellt")
-        # print("x Länge:")
-        # print(np.max(x_Data))
-        # print("y Länge:")
-        # print(np.max(y_Data))
-        # print("Shape mAp:")
-        print("erlaubte shape:")
-        print(np.shape(heatmap))
-        
-        print("i sollte sein:")
-        print(len(x_Data))
-        #Schleife über alle Positionen, die aufgenommen wurden
         for i in range(len(x_Data)):
             
             heatmap[int(x_Data[i]) - 1, int(y_Data[i]) - 1] = heatmap[int(x_Data[i]) - 1, int(y_Data[i]) - 1] + 1
-            
-        #manipulation der Heatmap mit Methode um umliegende Pixel auch hohe Werte zuzuweisen
-        # Gauss Filter?
-        gauss_filter = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]]) / 16
-
-        # Bildbearbeitung mithilfe Dilatation
-        #Strukturelement: wie funktioniert convolve genau
+       
         structuring_element = np.array([[1, 1, 1, 1, 1],
                                         [1, 1, 1, 1, 1],
                                         [1, 1, 1, 1, 1],
@@ -120,14 +96,34 @@ class Model:
                                         [1, 1, 1, 1, 1]])
 
         filtered_heatmap = convolve(heatmap, structuring_element)
-
-    
         
-        
-        #Bearbeitung der Heatmap, damit umliegende Pixel auch eingefärbt werden, damit Pixel auf Hintergrund
-        #sichtbar sein werden
-        #gauss, mittelwert, media, .... 
-
-        # gauss_filter = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]]) #/ 16
-
         return filtered_heatmap
+
+
+    def calculate_differentiation(self, data): #acceleration = veränderung von v
+        data_x = data[:,1]
+        data_y = data[:,0]
+        time_event = data[:,2]
+
+
+        # diff = np.zeros(shape=(0,2))
+        diff_x = [] 
+        diff_y = []
+        
+        for i in range(len(data_x)):
+
+            if i == 0:
+                # diff = np.vstack([diff, [0, 0]])
+                diff_x.append(0)
+                diff_y.append(0)
+
+            elif (time_event[i] - time_event[i-1]) == 0:
+                # diff = np.vstack([diff, [diff[i-1,:], diff[:,i-1]]])
+                diff_x.append(diff_x[i-1])
+                diff_y.append(diff_y[i-1])
+
+            else:
+                diff_x.append((abs(data_x[i] - data_x[i-1])) / (time_event[i] - time_event[i-1]))
+                diff_y.append((abs(data_y[i] - data_y[i-1])) / (time_event[i] - time_event[i-1]))
+
+        return diff_x, diff_y
