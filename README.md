@@ -45,3 +45,6 @@ Version 1.0.8
 Version 1.0.9
     1. Tracking nur auf einem Bildschirm
         Heatmap wird auf Screenshot des Bildschirms erstellt
+
+Version 1.1.0
+    1. Bewegunstrajektorie als Heatmap erkennbar
